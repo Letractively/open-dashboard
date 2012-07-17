@@ -5,7 +5,7 @@
 	<!-- POM file generated with GWT webAppCreator -->
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.mobily</groupId>
-	<artifactId>odb-server</artifactId>
+	<artifactId>odbserver</artifactId>
 	<packaging>war</packaging>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>ODB Server</name>
@@ -121,6 +121,7 @@
 
 	<build>
 		<!-- Generate compiled stuff in the folder used for developing mode -->
+		<finalName>odbserver</finalName>
 		<outputDirectory>${webappDirectory}/WEB-INF/classes</outputDirectory>
 		<pluginManagement>
 			<plugins>

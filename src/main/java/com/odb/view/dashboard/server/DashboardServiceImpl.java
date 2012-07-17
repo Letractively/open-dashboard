@@ -15,6 +15,7 @@ import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 import com.odb.core.DataSourceAxisDetailInfo;
 import com.odb.core.DataSourceInfo;
 import com.odb.core.DataSourceSeries;
+import com.odb.core.PublisherInfo;
 import com.odb.core.SubscriberDataSource;
 import com.odb.core.SubscriberInfo;
 import com.odb.core.ViewConfiguration;
@@ -25,6 +26,7 @@ import com.odb.view.dashboard.client.dto.DataSourceAxisInfo;
 import com.odb.view.dashboard.client.dto.LiveChartVO;
 import com.odb.view.dashboard.client.dto.ViewConfig;
 import com.odb.view.dashboard.client.dto.ViewSettings;
+import com.odb.view.dashboard.client.exceptions.FetchDataSourceException;
 import com.odb.view.dashboard.client.exceptions.GraphNotAvailableException;
 import com.odb.view.dashboard.client.exceptions.ViewSettingNotConsistentException;
 import com.odb.view.util.Utilities;
@@ -68,7 +70,7 @@ public class DashboardServiceImpl extends RemoteServiceServlet implements
 		}
 		throw new GraphNotAvailableException();
 	}
-
+	
 	/* (non-Javadoc)
 	 * @see com.mobily.dashboard.client.DashboardService#getCurrentViewSettings()
 	 */
@@ -113,5 +115,41 @@ public class DashboardServiceImpl extends RemoteServiceServlet implements
 			throw new ViewSettingNotConsistentException("Error while getting ViewSettings");
 		}
 		return viewSettings;
+	}
+	public ArrayList<com.odb.view.dashboard.client.dto.PublisherInfo> getPublisherInfo() throws FetchDataSourceException {
+		ArrayList<com.odb.view.dashboard.client.dto.PublisherInfo> publisherInfoList = new ArrayList<com.odb.view.dashboard.client.dto.PublisherInfo>();
+		try {
+			ArrayList<PublisherInfo> pubInfo = odbCore.getAllPublishers();
+			for (PublisherInfo pInfo : pubInfo) {
+				com.odb.view.dashboard.client.dto.PublisherInfo pi = new com.odb.view.dashboard.client.dto.PublisherInfo();
+				pi.setPublisherID(pInfo.getPublisherID());
+				pi.setPublisherName(pInfo.getPublisherName());
+				publisherInfoList.add(pi);
+			}
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		return publisherInfoList;
+	}
+
+	public ArrayList<com.odb.view.dashboard.client.dto.DataSourceInfo> getDataSources(String publisherID) {
+		ArrayList<com.odb.view.dashboard.client.dto.DataSourceInfo> dataSourceList = new ArrayList<com.odb.view.dashboard.client.dto.DataSourceInfo>();
+		try {
+			ArrayList<DataSourceInfo> dsInfo = odbCore.getAllDataSourceByPublisher(publisherID);
+			for (DataSourceInfo dInfo : dsInfo) {
+				com.odb.view.dashboard.client.dto.DataSourceInfo dataSource = new com.odb.view.dashboard.client.dto.DataSourceInfo();
+				dataSource.setDataSourceID(dInfo.getDataSourceID());
+				dataSource.setDataSourceName(dInfo.getDataSourceName());
+				dataSource.setPublisherID(dInfo.getPublisherID());
+				dataSource.setSeriesCount(dInfo.getSeriesCount());
+				dataSource.setTimeoutInterval(dInfo.getTimeoutInterval());
+				dataSourceList.add(dataSource);
+			}
+		} catch (SQLException e) {
+			log.error("Fetching DataSourceInfo failed... ");
+		}
+		return dataSourceList;
 	}
 }

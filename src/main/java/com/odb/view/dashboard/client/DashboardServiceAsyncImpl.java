@@ -1,6 +1,10 @@
 package com.odb.view.dashboard.client;
 
+import java.util.ArrayList;
+
 import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.odb.view.dashboard.client.dto.DataSourceInfo;
+import com.odb.view.dashboard.client.dto.PublisherInfo;
 import com.odb.view.dashboard.client.dto.ViewSettings;
 
 public class DashboardServiceAsyncImpl implements DashboardServiceAsync {
@@ -13,6 +17,15 @@ public class DashboardServiceAsyncImpl implements DashboardServiceAsync {
 	public void getCurrentViewSettings(AsyncCallback<ViewSettings> callback) {
 		// TODO Auto-generated method stub
 
+	}
+	public void getPublisherInfo(AsyncCallback<ArrayList<PublisherInfo>> callback) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void getDataSources(String publisherID, AsyncCallback<ArrayList<DataSourceInfo>> callback) {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

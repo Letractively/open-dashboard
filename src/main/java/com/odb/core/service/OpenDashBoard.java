@@ -22,6 +22,7 @@ import com.odb.core.DataSourceSeries;
 import com.odb.core.PublisherInfo;
 import com.odb.core.SubscriberDataSource;
 import com.odb.core.SubscriberInfo;
+import com.odb.core.SubscriberSubscriptions;
 import com.odb.core.ViewConfiguration;
 import com.odb.core.dao.ODBDAO;
 
@@ -171,6 +172,17 @@ public class OpenDashBoard {
 	public List<DataSourceSeries> getLatestSeriesData(String dsID, int rowNum){
 		return odbDAO.getLatestSeriesData(dsID, rowNum);
 	}
+
+	/**
+	 * Gets the all data source by subscriber ID.
+	 *
+	 * @param pubID the pub id
+	 * @return the all data source by subscriber
+	 * @throws SQLException the sQL exception
+	 */
+	public ArrayList<DataSourceInfo> getAllDataSourceBySubscriber(String subscriberID) throws SQLException {
+		return odbDAO.getAllDataSourceBySubscriberID(subscriberID);
+	}	
 	
 	/**
 	 * Gets the all data source by publisher.

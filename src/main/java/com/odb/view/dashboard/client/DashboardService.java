@@ -1,8 +1,11 @@
 package com.odb.view.dashboard.client;
 
+import java.util.ArrayList;
+
 import com.google.gwt.user.client.rpc.RemoteService;
 import com.google.gwt.user.client.rpc.RemoteServiceRelativePath;
 import com.odb.view.dashboard.client.dto.ViewSettings;
+import com.odb.view.dashboard.client.exceptions.FetchDataSourceException;
 import com.odb.view.dashboard.client.exceptions.GraphNotAvailableException;
 import com.odb.view.dashboard.client.exceptions.ViewSettingNotConsistentException;
 
@@ -41,5 +44,7 @@ public interface DashboardService extends RemoteService {
 	 * @see ViewSettings
 	 */
 	ViewSettings getCurrentViewSettings() throws ViewSettingNotConsistentException;
+	public ArrayList<com.odb.view.dashboard.client.dto.PublisherInfo> getPublisherInfo() throws FetchDataSourceException;
+	public ArrayList<com.odb.view.dashboard.client.dto.DataSourceInfo> getDataSources(String publisherID);
 	
 }

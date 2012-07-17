@@ -20,6 +20,7 @@ import com.odb.core.GraphInfo;
 import com.odb.core.PublisherInfo;
 import com.odb.core.SubscriberDataSource;
 import com.odb.core.SubscriberInfo;
+import com.odb.core.SubscriberSubscriptions;
 import com.odb.core.SubscriberViewConfiguration;
 import com.odb.core.ViewConfiguration;
 
@@ -142,6 +143,14 @@ public class ODBDAOJDBCImpl implements ODBDAO {
 	}
 
 	/* (non-Javadoc)
+	 * @see com.odb.core.dao.ODBDAO#getSubscriberDataSourceBy(java.lang.String, java.lang.String)
+	 */
+	public ArrayList<DataSourceInfo> getAllDataSourceBySubscriberID(String subscriberId) {
+		String sql = "SELECT ODI.* FROM ODB_SUB_DATASOURCES SDS, ODB_DATASOURCE_INFO ODI WHERE SDS.SUBSCRIBER_ID=? AND SDS.DATASOURCE_ID=ODI.DATASOURCE_ID";
+		return (ArrayList<DataSourceInfo>) jdbcTemp.getJdbcOperations().query(sql, new Object[] { subscriberId }, new DataSourceInfoRowMapper());
+	}
+
+	/* (non-Javadoc)
 	 * @see com.odb.core.dao.ODBDAO#getAllDataSourceByPublisherID(java.lang.String)
 	 */
 	public ArrayList<DataSourceInfo> getAllDataSourceByPublisherID(String pubID) throws SQLException {
@@ -223,6 +232,7 @@ public class ODBDAOJDBCImpl implements ODBDAO {
 		paramMap.put("viewLocationID", viewLocationID);
 		return jdbcTemp.query(sql, paramMap, new SubscriberDataSourceoResultSetExtractor() );
 	}
+
 
 
 	/* (non-Javadoc)

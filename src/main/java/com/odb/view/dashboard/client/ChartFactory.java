@@ -36,21 +36,14 @@ public class ChartFactory {
 	 * 
 	 * @see ODBChart
 	 */
-	public static ODBChart getChart(ViewSettings viewSettings, ViewConfig viewConfig, int seriesCount) throws ChartSettingsNotValidException{
-		ODBChart chart = null;
-		SubscriberDataSource subscriberDataSource = (SubscriberDataSource) viewSettings.viewConfigMap.get("subscriberDataSource_"+viewConfig.getViewLocationID());
-		DataSourceInfo dataSourceInfo = (DataSourceInfo) viewSettings.viewConfigMap.get("dataSourceInfo_"+viewConfig.getViewLocationID());
+	public static ODBChart getChart(DataSourceInfo dataSourceInfo, ArrayList<DataSourceAxisInfo> dataSourceAxisInfoList, int seriesCount) throws ChartSettingsNotValidException{
+		//ODBChart chart = null;
+		//SubscriberDataSource subscriberDataSource = (SubscriberDataSource) viewSettings.viewConfigMap.get("subscriberDataSource_"+viewConfig.getViewLocationID());
+		//DataSourceInfo dataSourceInfo = (DataSourceInfo) viewSettings.viewConfigMap.get("dataSourceInfo_"+viewConfig.getViewLocationID());
 		@SuppressWarnings("unchecked")
-		ArrayList<DataSourceAxisInfo> dataSourceAxisInfoList = (ArrayList<DataSourceAxisInfo>) viewSettings.viewConfigMap.get("dataSourceAxisInfoList_"+viewConfig.getViewLocationID());
-		Integer graphID = Integer.valueOf(subscriberDataSource.getGraphID());
-		switch(graphID){
-			case 1:
-				chart = constructLiveChart(dataSourceInfo, dataSourceAxisInfoList, seriesCount);
-			break;
-			default:
-				chart = constructLiveChart(dataSourceInfo, dataSourceAxisInfoList, seriesCount);
-			break;
-		}
+		//ArrayList<DataSourceAxisInfo> dataSourceAxisInfoList = (ArrayList<DataSourceAxisInfo>) viewSettings.viewConfigMap.get("dataSourceAxisInfoList_"+viewConfig.getViewLocationID());
+		//Integer graphID = Integer.valueOf(subscriberDataSource.getGraphID());
+		ODBChart chart = constructLiveChart(dataSourceInfo, dataSourceAxisInfoList, seriesCount);
 		return chart;
 	}
 	

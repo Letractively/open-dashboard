@@ -12,6 +12,7 @@ import com.odb.core.GraphInfo;
 import com.odb.core.PublisherInfo;
 import com.odb.core.SubscriberDataSource;
 import com.odb.core.SubscriberInfo;
+import com.odb.core.SubscriberSubscriptions;
 import com.odb.core.SubscriberViewConfiguration;
 import com.odb.core.ViewConfiguration;
 
@@ -190,6 +191,14 @@ public interface ODBDAO {
 	 * @return SubscriberDataSource with its SubscriberViewConfiguration and GraphInfo objects
 	 */
 	public SubscriberDataSource getSubscriberDataSourceBy(String subscriberId, String viewLocationID);
+
+	/**
+	 * Gets the subscriber data source by.
+	 *
+	 * @param subscriberId the subscriber id
+	 * @return 
+	 */
+	public ArrayList<DataSourceInfo> getAllDataSourceBySubscriberID(String subscriberId);
 	
 	/**
 	 * Gets the data source axis info.
