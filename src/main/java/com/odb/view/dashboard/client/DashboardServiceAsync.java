@@ -1,6 +1,8 @@
 package com.odb.view.dashboard.client;
 
+import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.odb.view.dashboard.client.dto.PublisherInfo;
@@ -32,4 +34,5 @@ public interface DashboardServiceAsync {
 	void getPublisherInfo(AsyncCallback<ArrayList<com.odb.view.dashboard.client.dto.PublisherInfo>> callback);
 
 	void getDataSources(String publisherID, AsyncCallback<ArrayList<com.odb.view.dashboard.client.dto.DataSourceInfo>> callback);
+	void getDataSourceAllDetails(String dataSourceID, AsyncCallback<HashMap<String, Serializable>> callback);
 }

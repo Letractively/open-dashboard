@@ -1,7 +1,9 @@
 package com.odb.view.dashboard.client;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 
 import org.icepush.gwt.client.GWTPushContext;
 import org.icepush.gwt.client.PushEventListener;
@@ -95,15 +97,27 @@ public class Dashboard implements EntryPoint {
 	private static final TextArea debugLog = new TextArea();
 
 	private void debug(String msg) {
-		debugLog.setText(debugLog.getText() + "\n" + msg);
+		debugLog.setText(msg + "\n" + debugLog.getText());
 	}
 
 	private Widget setupDebug() {
-		debugLog.setCharacterWidth(20);
-		debugLog.setVisibleLines(40);
+		//debugLog.setCharacterWidth(20);
+		final ContentPanel panel = new ContentPanel(GWT.<ContentPanelAppearance> create(FramedPanelAppearance.class));
+		panel.setCollapsible(true);
+		new Resizable(panel);
+
+		panel.getElement().getStyle().setMargin(2, Unit.PX);
+		// set a header of the panel
+		panel.setHeadingText("Debug Messages");
+		panel.setBodyBorder(true);
+		panel.setBodyStyleName("white-bg");
+		debugLog.setVisibleLines(10);
+		debugLog.setWidth("100%");
+		debugLog.setHeight("10%");
+//		debugLog.setVisibleLines(40);
 		debugLog.setReadOnly(true);
 		ScrollPanel debugScrollable = new ScrollPanel(debugLog);
-
+		panel.add(debugScrollable);
 		return debugScrollable;
 	}
 
@@ -143,6 +157,21 @@ public class Dashboard implements EntryPoint {
 		Button nextButton = new Button("Next", new ClickHandler() {
 			public void onClick(ClickEvent event) {
 				newDataSourceID.append(dynamicTree.getSelectedItem().getText());
+//				dashboardService.getDataSourceAllDetails(dataSourceID, callback)
+				dashboardService.getDataSourceAllDetails(newDataSourceID.toString(), new AsyncCallback<HashMap<String, Serializable>>() {
+
+					public void onFailure(Throwable caught) {
+						// TODO Auto-generated method stub
+						
+					}
+
+					public void onSuccess(HashMap<String, Serializable> result) {
+						flowPanel.add(createChart((DataSourceInfo)result.get("dataSourceInfo"), (ArrayList<DataSourceAxisInfo>)result.get("dataSourceAxisInfoList"), "1", 400, 300));
+						
+					}
+				});
+					
+				
 				//createChart(newDataSourceID.toString());
 				dialogBox.hide();
 			}
@@ -194,6 +223,7 @@ public class Dashboard implements EntryPoint {
 				dashboardService.getDataSources(event.getTarget().getText(), new AsyncCallback<ArrayList<DataSourceInfo>>() {
 
 					public void onSuccess(ArrayList<DataSourceInfo> result) {
+						item.removeItems();
 						for (DataSourceInfo dsInfo : result) {
 							TreeItem child = item.addItem(dsInfo.getDataSourceID());
 						}
@@ -249,14 +279,14 @@ public class Dashboard implements EntryPoint {
 		return menu;
 	}
 
-	private Widget createChart(final DataSourceInfo dataSourceInfo, ArrayList<DataSourceAxisInfo> dataSourceAxisInfoList, int seriesCount, String chartID,
+	private Widget createChart(final DataSourceInfo dataSourceInfo, ArrayList<DataSourceAxisInfo> dataSourceAxisInfoList, String chartID,
 			int width, int height) {
 		// the panel that will hold the chart
 		final ContentPanel panel = new ContentPanel(GWT.<ContentPanelAppearance> create(FramedPanelAppearance.class));
 		panel.setCollapsible(true);
 		new Draggable(panel);
 		new Resizable(panel);
-
+		panel.setLayoutData(HasHorizontalAlignment.ALIGN_LEFT);
 		panel.getElement().getStyle().setMargin(2, Unit.PX);
 		// set a header of the panel
 		panel.setHeadingText("Chart " + chartID);
@@ -275,7 +305,7 @@ public class Dashboard implements EntryPoint {
 		errorLabel.setText("");
 
 		try {
-			final ODBChart chart = ChartFactory.getChart(dataSourceInfo, dataSourceAxisInfoList, seriesCount);
+			final ODBChart chart = ChartFactory.getChart(dataSourceInfo, dataSourceAxisInfoList);
 			layout.add(chart.asWidget(), new VerticalLayoutData(1, 1));
 			layout.add(errorLabel);
 
@@ -356,17 +386,22 @@ public class Dashboard implements EntryPoint {
 		return table;
 	}
 
+	final FlowPanel flowPanel = new FlowPanel();
 	public void onModuleLoad() {
+		
 		final FlexTable splitFlexTable = new FlexTable();
 		splitFlexTable.addStyleName("cw-FlexTable");
+		splitFlexTable.setWidth("100%");
 
-		final FlowPanel flowPanel = new FlowPanel();
-		splitFlexTable.getFlexCellFormatter().setColSpan(0, 0, 2);
+
+		//splitFlexTable.getFlexCellFormatter().setColSpan(0, 0, 2);
 		splitFlexTable.setWidget(0, 0, createMenu());
 		splitFlexTable.setWidget(1, 0, flowPanel);
-		splitFlexTable.getFlexCellFormatter().setWidth(1, 0, "90%");
-		splitFlexTable.getFlexCellFormatter().setHorizontalAlignment(1, 0, HasHorizontalAlignment.ALIGN_LEFT);
-		splitFlexTable.setWidget(1, 1, setupDebug());
+//		splitFlexTable.getFlexCellFormatter().setHeight(1, 0, "90%");
+		splitFlexTable.getFlexCellFormatter().setHorizontalAlignment(0, 0, HasHorizontalAlignment.ALIGN_LEFT);
+		splitFlexTable.getFlexCellFormatter().setHorizontalAlignment(1, 0, HasHorizontalAlignment.ALIGN_JUSTIFY);
+		splitFlexTable.getFlexCellFormatter().setHorizontalAlignment(2, 0, HasHorizontalAlignment.ALIGN_LEFT);
+		splitFlexTable.setWidget(2, 0, setupDebug());
 		RootPanel.get().add(splitFlexTable);
 
 		dashboardService.getCurrentViewSettings(new AsyncCallback<ViewSettings>() {
@@ -384,7 +419,7 @@ public class Dashboard implements EntryPoint {
 
 					flowPanel.add(createChart((DataSourceInfo) viewSettings.viewConfigMap.get("dataSourceInfo_" + viewConfig.getViewLocationID()),
 							((ArrayList<DataSourceAxisInfo>) viewSettings.viewConfigMap.get("dataSourceAxisInfoList_" + viewConfig.getViewLocationID())),
-							dataSourceInfo.getSeriesCount(), viewConfig.getViewLocationID(), viewConfig.getViewWidth(), viewConfig.getViewHeight()));
+							viewConfig.getViewLocationID(), viewConfig.getViewWidth(), viewConfig.getViewHeight()));
 
 				}
 

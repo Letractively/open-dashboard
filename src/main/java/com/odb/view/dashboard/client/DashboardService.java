@@ -1,6 +1,8 @@
 package com.odb.view.dashboard.client;
 
+import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import com.google.gwt.user.client.rpc.RemoteService;
 import com.google.gwt.user.client.rpc.RemoteServiceRelativePath;
@@ -46,5 +48,5 @@ public interface DashboardService extends RemoteService {
 	ViewSettings getCurrentViewSettings() throws ViewSettingNotConsistentException;
 	public ArrayList<com.odb.view.dashboard.client.dto.PublisherInfo> getPublisherInfo() throws FetchDataSourceException;
 	public ArrayList<com.odb.view.dashboard.client.dto.DataSourceInfo> getDataSources(String publisherID);
-	
+	public HashMap<String, Serializable> getDataSourceAllDetails(String dataSourceID);
 }
