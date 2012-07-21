@@ -1,4 +1,4 @@
-package com.odb.core.dao;
+package com.odb.core.dao.rowmappers;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -6,7 +6,7 @@ import java.sql.SQLException;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.ResultSetExtractor;
 
-import com.odb.core.DataSourceSeries;
+import com.odb.core.dao.dto.DataSourceSeries;
 
 /**
  * The Class DataSourceSeriesResultSetExtractor.

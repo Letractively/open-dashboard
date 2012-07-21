@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.odb.core.service.DataSourceConfiguration;
 import com.odb.view.dashboard.client.dto.PublisherInfo;
 import com.odb.view.dashboard.client.dto.ViewSettings;
 
@@ -30,9 +31,11 @@ public interface DashboardServiceAsync {
 	 * @param callback the callback
 	 * @return the current view settings
 	 */
-	void getCurrentViewSettings(AsyncCallback<ViewSettings> callback);
+//	void getCurrentViewSettings(AsyncCallback<ViewSettings> callback);
 	void getPublisherInfo(AsyncCallback<ArrayList<com.odb.view.dashboard.client.dto.PublisherInfo>> callback);
 
 	void getDataSources(String publisherID, AsyncCallback<ArrayList<com.odb.view.dashboard.client.dto.DataSourceInfo>> callback);
-	void getDataSourceAllDetails(String dataSourceID, AsyncCallback<HashMap<String, Serializable>> callback);
+	void getDataSourceAllDetails(String dataSourceID, AsyncCallback<DataSourceConfiguration> callback);
+
+	void getCurrentSubscriptions(AsyncCallback<ArrayList<DataSourceConfiguration>> asyncCallback);
 }

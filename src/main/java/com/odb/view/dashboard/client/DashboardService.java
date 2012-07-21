@@ -6,6 +6,7 @@ import java.util.HashMap;
 
 import com.google.gwt.user.client.rpc.RemoteService;
 import com.google.gwt.user.client.rpc.RemoteServiceRelativePath;
+import com.odb.core.service.DataSourceConfiguration;
 import com.odb.view.dashboard.client.dto.ViewSettings;
 import com.odb.view.dashboard.client.exceptions.FetchDataSourceException;
 import com.odb.view.dashboard.client.exceptions.GraphNotAvailableException;
@@ -45,8 +46,10 @@ public interface DashboardService extends RemoteService {
 	 * 
 	 * @see ViewSettings
 	 */
-	ViewSettings getCurrentViewSettings() throws ViewSettingNotConsistentException;
+//	ViewSettings getCurrentViewSettings() throws ViewSettingNotConsistentException;
 	public ArrayList<com.odb.view.dashboard.client.dto.PublisherInfo> getPublisherInfo() throws FetchDataSourceException;
 	public ArrayList<com.odb.view.dashboard.client.dto.DataSourceInfo> getDataSources(String publisherID);
-	public HashMap<String, Serializable> getDataSourceAllDetails(String dataSourceID);
+	public DataSourceConfiguration getDataSourceAllDetails(String dataSourceID);
+
+	public ArrayList<DataSourceConfiguration> getCurrentSubscriptions();
 }

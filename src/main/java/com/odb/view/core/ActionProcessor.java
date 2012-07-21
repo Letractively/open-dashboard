@@ -9,8 +9,9 @@ import org.apache.log4j.Logger;
 import org.icepush.PushContext;
 import org.springframework.web.context.WebApplicationContext;
 
-import com.odb.core.SubscriberInfo;
+import com.odb.core.dao.dto.SubscriberInfo;
 import com.odb.core.service.OpenDashBoard;
+import com.odb.core.service.exceptions.InvalidAuthenticationException;
 import com.odb.view.dashboard.client.Dashboard;
 import com.odb.view.dashboard.client.DashboardService;
 import com.odb.view.util.Utilities;
@@ -18,43 +19,49 @@ import com.odb.view.util.Utilities;
 /**
  * The Class ActionProcessor.
  * 
- * This class is the delegation class for the {@link DashboardController} to handle each request and decide which navigation is next
+ * This class is the delegation class for the {@link DashboardController} to
+ * handle each request and decide which navigation is next
  * 
- * this class receives a reference of the {@link OpenDashBoard} service to call the perform the system functions.
+ * this class receives a reference of the {@link OpenDashBoard} service to call
+ * the perform the system functions.
  * 
  */
 public class ActionProcessor {
 
 	/** The log. */
 	private static Logger log = Logger.getLogger(ActionProcessor.class);
-	
+
 	/** The odb core. */
 	private OpenDashBoard odbCore;
-	
+
 	/**
 	 * Instantiates a new action processor.
-	 *
-	 * @param applicationContext the application context
+	 * 
+	 * @param applicationContext
+	 *            the application context
 	 */
 	public ActionProcessor(WebApplicationContext applicationContext) {
-		this.odbCore=(OpenDashBoard)applicationContext.getBean("OpenDashBoardCore");
+		this.odbCore = (OpenDashBoard) applicationContext.getBean("OpenDashBoardCore");
 	}
 
 	/**
 	 * Execute action.
 	 * 
-	 * this is the main method for the {@link ActionProcessor} class, 
-	 * it takes an action string and then decide which action to perform.
-	 *
-	 * @param action the action string
-	 * @param request the httprequest
-	 * @param response the httpresponse
+	 * this is the main method for the {@link ActionProcessor} class, it takes
+	 * an action string and then decide which action to perform.
+	 * 
+	 * @param action
+	 *            the action string
+	 * @param request
+	 *            the httprequest
+	 * @param response
+	 *            the httpresponse
 	 * @return a string used to decide which navigation is next
 	 */
-	public String executeAction(String action, HttpServletRequest request, HttpServletResponse response){
-		if("login".equals(action)){
+	public String executeAction(String action, HttpServletRequest request, HttpServletResponse response) {
+		if ("login".equals(action)) {
 			return loginAction(request, response);
-		}else if("publish".equals(action)){
+		} else if ("publish".equals(action)) {
 			return firePushEventAction(request, response);
 		}
 		return null;
@@ -63,21 +70,23 @@ public class ActionProcessor {
 	/**
 	 * Fire push event action for the given dataSourceId.
 	 * 
-	 * this causes the {@link DashboardService#getDataUpdate(String, String)} to be called for the specified datasourceId 
-	 * and causes the Chart to be updated with the new data
-	 *
-	 * @param request the request
-	 * @param response the response
+	 * this causes the {@link DashboardService#getDataUpdate(String, String)} to
+	 * be called for the specified datasourceId and causes the Chart to be
+	 * updated with the new data
+	 * 
+	 * @param request
+	 *            the request
+	 * @param response
+	 *            the response
 	 * @return a string used to decide which navigation is next
 	 * 
 	 * @see OpenDashBoard#publish(String)
 	 * @see Dashboard#onModuleLoad()
 	 */
-	public String firePushEventAction(HttpServletRequest request,
-			HttpServletResponse response) {
+	public String firePushEventAction(HttpServletRequest request, HttpServletResponse response) {
 		String dataSourceId = null;
 		try {
-			dataSourceId= request.getParameter("dataSourceId");
+			dataSourceId = request.getParameter("dataSourceId");
 			PushContext pushContext = PushContext.getInstance(request.getSession().getServletContext());
 			pushContext.push(dataSourceId);
 			response.setStatus(HttpServletResponse.SC_OK);
@@ -90,24 +99,24 @@ public class ActionProcessor {
 
 	/**
 	 * Login action.
-	 *
-	 * @param request the request
-	 * @param response the response
+	 * 
+	 * @param request
+	 *            the request
+	 * @param response
+	 *            the response
 	 * @return a string used to decide which navigation is next
 	 */
-	public String loginAction(HttpServletRequest request,
-			HttpServletResponse response) {
-		
+	public String loginAction(HttpServletRequest request, HttpServletResponse response) {
+
 		String username = request.getParameter("username");
 		String password = request.getParameter("password");
 		SubscriberInfo subscriberInfo;
 		try {
 			subscriberInfo = odbCore.subscriberLogin(username, Utilities.encrypt(password));
-			if(subscriberInfo == null){
-				return "loginError";
-			}else{
-				request.getSession().setAttribute("subscriberInfo", subscriberInfo);
-			}
+			request.getSession().setAttribute("subscriberInfo", subscriberInfo);
+		} catch (InvalidAuthenticationException e) {
+			log.error("", e);
+			return "loginError";
 		} catch (GeneralSecurityException e) {
 			log.error("", e);
 			return "loginError";

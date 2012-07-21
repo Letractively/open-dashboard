@@ -13,13 +13,14 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
-import com.odb.core.DataSourceAxisDetailInfo;
-import com.odb.core.DataSourceInfo;
-import com.odb.core.DataSourceSeries;
-import com.odb.core.PublisherInfo;
 import com.odb.core.SubscriberDataSource;
-import com.odb.core.SubscriberInfo;
-import com.odb.core.ViewConfiguration;
+import com.odb.core.dao.dto.DataSourceAxisDetailInfo;
+import com.odb.core.dao.dto.DataSourceInfo;
+import com.odb.core.dao.dto.DataSourceSeries;
+import com.odb.core.dao.dto.PublisherInfo;
+import com.odb.core.dao.dto.SubscriberInfo;
+import com.odb.core.dao.dto.ViewConfiguration;
+import com.odb.core.service.DataSourceConfiguration;
 import com.odb.core.service.OpenDashBoard;
 import com.odb.view.dashboard.client.DashboardService;
 import com.odb.view.dashboard.client.DataVO;
@@ -80,82 +81,89 @@ public class DashboardServiceImpl extends RemoteServiceServlet implements Dashbo
 		throw new GraphNotAvailableException();
 	}
 
-	public HashMap<String, Serializable> getDataSourceAllDetails(String dataSourceID) {
-		HashMap<String, Serializable> dsAllDetails = new java.util.HashMap<String, Serializable>();
-		// getting DataSourceInfo
-		DataSourceInfo dataSourceInfo;
+	public DataSourceConfiguration getDataSourceAllDetails(String dataSourceID) {
+		
+		//HashMap<String, Serializable> dsAllDetails = new java.util.HashMap<String, Serializable>();
+		DataSourceConfiguration dsConfig = new DataSourceConfiguration();
 		try {
-			dataSourceInfo = odbCore.getDataSourceByDataSourceID(dataSourceID);
-			// adding DataSource to map...
-			dsAllDetails.put("dataSourceInfo", Utilities.getClientDataSourceInfo((dataSourceInfo)));
-			// getting DataSourceAxisInfo
-			List<com.odb.core.DataSourceAxisInfo> dataSourceAxisInfoList = odbCore.getDataSourceAxisInfo(dataSourceInfo.getDataSourceID());
-			ArrayList<DataSourceAxisInfo> clientDataSourceAxisInfoList = new ArrayList<DataSourceAxisInfo>(dataSourceAxisInfoList.size());
-			for (com.odb.core.DataSourceAxisInfo dataSourceAxisInfo : dataSourceAxisInfoList) {
-				// getting axis detail config
-				List<DataSourceAxisDetailInfo> dataSourceAxisDetailInfoList = odbCore.getDataSourceAxisDetailInfoListBy(dataSourceAxisInfo
-						.getDataSourceAxisID());
-				clientDataSourceAxisInfoList.add(Utilities.getClientDataSourceAxisInfo(dataSourceAxisInfo, dataSourceAxisDetailInfoList));
-			}
-			dsAllDetails.put("dataSourceAxisInfoList", clientDataSourceAxisInfoList);
+			dsConfig = odbCore.getDataSourceConfigurationBy(dataSourceID);
 		} catch (SQLException e) {
-			log.error("Error while getting DataSource details for dataSourceID: " + dataSourceID, e);
+			log.error("Failed while getting data source details for dsID=" + dataSourceID + e);
 		}
 
-		return dsAllDetails;
+		return dsConfig;
 
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * com.mobily.dashboard.client.DashboardService#getCurrentViewSettings()
-	 */
-	public ViewSettings getCurrentViewSettings() throws ViewSettingNotConsistentException {
-		ViewSettings viewSettings = new ViewSettings();
-		// getting Current subscriber info...
+
+	public ArrayList<DataSourceConfiguration> getCurrentSubscriptions() {
+		ArrayList<DataSourceConfiguration> dsConfigList = null;
 		SubscriberInfo subscriberInfo = (SubscriberInfo) getThreadLocalRequest().getSession().getAttribute("subscriberInfo");
-		viewSettings.subscriberInfo = Utilities.getClientSubscriberInfo(subscriberInfo);
+		String subscriberID = Utilities.getClientSubscriberInfo(subscriberInfo).getSubscriberID();
 		try {
-			// getting system active ViewConfiguration
-			List<ViewConfiguration> viewConfigurationList = odbCore.getViewConfigurationList();
-			ArrayList<ViewConfig> clientViewConfigList = new ArrayList<ViewConfig>(viewConfigurationList.size());
-			for (ViewConfiguration viewConfiguration : viewConfigurationList) {
-				clientViewConfigList.add(Utilities.getClientViewConfig(viewConfiguration));
+			ArrayList<DataSourceInfo> subDS= odbCore.getAllDataSourceBySubscriber(subscriberID);
+			dsConfigList = new ArrayList<DataSourceConfiguration>(subDS.size());
+			for (DataSourceInfo ds : subDS) {
+				DataSourceConfiguration dsConfig = odbCore.getDataSourceConfigurationBy(ds.getDataSourceID());
+				dsConfigList.add(dsConfig);
 			}
-			viewSettings.viewConfigList = clientViewConfigList;
-			viewSettings.viewConfigMap = new java.util.HashMap<String, Serializable>();
-			for (ViewConfig viewConfig : clientViewConfigList) {
-				// getting SubscriberDataSource
-				SubscriberDataSource subscriberDataSource = odbCore.getSubscriberDataSourceBy(subscriberInfo.getSubscriberID(), viewConfig.getViewLocationID());
-				// adding SubscriberDataSource to map...
-				viewSettings.viewConfigMap.put("subscriberDataSource_" + viewConfig.getViewLocationID(),
-						Utilities.getClientSubscriberDataSource((subscriberDataSource)));
-				// getting DataSourceInfo
-				DataSourceInfo dataSourceInfo = odbCore.getDataSourceByDataSourceID(subscriberDataSource.getDataSourceID());
-				// adding DataSource to map...
-				viewSettings.viewConfigMap.put("dataSourceInfo_" + viewConfig.getViewLocationID(), Utilities.getClientDataSourceInfo((dataSourceInfo)));
-				// getting DataSourceAxisInfo
-				List<com.odb.core.DataSourceAxisInfo> dataSourceAxisInfoList = odbCore.getDataSourceAxisInfo(dataSourceInfo.getDataSourceID());
-				ArrayList<DataSourceAxisInfo> clientDataSourceAxisInfoList = new ArrayList<DataSourceAxisInfo>(dataSourceAxisInfoList.size());
-				for (com.odb.core.DataSourceAxisInfo dataSourceAxisInfo : dataSourceAxisInfoList) {
-					// getting axis detail config
-					List<DataSourceAxisDetailInfo> dataSourceAxisDetailInfoList = odbCore.getDataSourceAxisDetailInfoListBy(dataSourceAxisInfo
-							.getDataSourceAxisID());
-					clientDataSourceAxisInfoList.add(Utilities.getClientDataSourceAxisInfo(dataSourceAxisInfo, dataSourceAxisDetailInfoList));
-				}
-				viewSettings.viewConfigMap.put("dataSourceAxisInfoList_" + viewConfig.getViewLocationID(), clientDataSourceAxisInfoList);
-			}
+			
 		} catch (SQLException e) {
-			log.error("Error while getting ViewSettings for subscriber ID: " + subscriberInfo.getSubscriberID(), e);
-			throw new ViewSettingNotConsistentException("Error while getting ViewSettings");
-		} catch (DataAccessException e) {
-			log.error("Error while getting ViewSettings for subscriber ID: " + subscriberInfo.getSubscriberID(), e);
-			throw new ViewSettingNotConsistentException("Error while getting ViewSettings");
+			log.error("Getting Current Subscription for the subscriber failed: subID:" + subscriberID + e);
 		}
-		return viewSettings;
+		
+		return dsConfigList;
 	}
+//	/*
+//	 * (non-Javadoc)
+//	 * 
+//	 * @see
+//	 * com.mobily.dashboard.client.DashboardService#getCurrentViewSettings()
+//	 */
+//	public ViewSettings getCurrentViewSettings() throws ViewSettingNotConsistentException {
+//		ViewSettings viewSettings = new ViewSettings();
+//		// getting Current subscriber info...
+//		SubscriberInfo subscriberInfo = (SubscriberInfo) getThreadLocalRequest().getSession().getAttribute("subscriberInfo");
+//		String subscriberID = Utilities.getClientSubscriberInfo(subscriberInfo).getSubscriberID();
+//		try {
+//			// getting system active ViewConfiguration
+//			List<ViewConfiguration> viewConfigurationList = odbCore.getViewConfigurationList();
+//			ArrayList<ViewConfig> clientViewConfigList = new ArrayList<ViewConfig>(viewConfigurationList.size());
+//			for (ViewConfiguration viewConfiguration : viewConfigurationList) {
+//				clientViewConfigList.add(Utilities.getClientViewConfig(viewConfiguration));
+//			}
+//			viewSettings.viewConfigList = clientViewConfigList;
+//			viewSettings.viewConfigMap = new java.util.HashMap<String, Serializable>();
+//			for (ViewConfig viewConfig : clientViewConfigList) {
+//				// getting SubscriberDataSource
+//				SubscriberDataSource subscriberDataSource = odbCore.getSubscriberDataSourceBy(subscriberInfo.getSubscriberID(), viewConfig.getViewLocationID());
+//				// adding SubscriberDataSource to map...
+//				viewSettings.viewConfigMap.put("subscriberDataSource_" + viewConfig.getViewLocationID(),
+//						Utilities.getClientSubscriberDataSource((subscriberDataSource)));
+//				// getting DataSourceInfo
+//				DataSourceInfo dataSourceInfo = odbCore.getDataSourceByDataSourceID(subscriberDataSource.getDataSourceID());
+//				// adding DataSource to map...
+//				viewSettings.viewConfigMap.put("dataSourceInfo_" + viewConfig.getViewLocationID(), Utilities.getClientDataSourceInfo((dataSourceInfo)));
+//				// getting DataSourceAxisInfo
+//				List<com.odb.core.dao.dto.DataSourceAxisInfo> dataSourceAxisInfoList = odbCore.getDataSourceAxisInfo(dataSourceInfo.getDataSourceID());
+//				ArrayList<DataSourceAxisInfo> clientDataSourceAxisInfoList = new ArrayList<DataSourceAxisInfo>(dataSourceAxisInfoList.size());
+//				for (com.odb.core.dao.dto.DataSourceAxisInfo dataSourceAxisInfo : dataSourceAxisInfoList) {
+//					// getting axis detail config
+//					List<DataSourceAxisDetailInfo> dataSourceAxisDetailInfoList = odbCore.getDataSourceAxisDetailInfoListBy(dataSourceAxisInfo
+//							.getDataSourceAxisID());
+//					clientDataSourceAxisInfoList.add(Utilities.getClientDataSourceAxisInfo(dataSourceAxisInfo, dataSourceAxisDetailInfoList));
+//				}
+//				viewSettings.viewConfigMap.put("dataSourceAxisInfoList_" + viewConfig.getViewLocationID(), clientDataSourceAxisInfoList);
+//			}
+//		} catch (SQLException e) {
+//			log.error("Error while getting ViewSettings for subscriber ID: " + subscriberInfo.getSubscriberID(), e);
+//			throw new ViewSettingNotConsistentException("Error while getting ViewSettings");
+//		} catch (DataAccessException e) {
+//			log.error("Error while getting ViewSettings for subscriber ID: " + subscriberInfo.getSubscriberID(), e);
+//			throw new ViewSettingNotConsistentException("Error while getting ViewSettings");
+//		}
+//		return viewSettings;
+//	}
 
 	public ArrayList<com.odb.view.dashboard.client.dto.PublisherInfo> getPublisherInfo() throws FetchDataSourceException {
 		ArrayList<com.odb.view.dashboard.client.dto.PublisherInfo> publisherInfoList = new ArrayList<com.odb.view.dashboard.client.dto.PublisherInfo>();
@@ -193,4 +201,5 @@ public class DashboardServiceImpl extends RemoteServiceServlet implements Dashbo
 		}
 		return dataSourceList;
 	}
+
 }

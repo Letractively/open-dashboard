@@ -9,6 +9,8 @@ package com.odb.collector;
 
 import javax.jws.WebService;
 
+import com.odb.core.service.DataSourceConfiguration;
+
 /**
  * The Interface RegisterService.
  * 
@@ -26,4 +28,14 @@ public interface RegisterService extends java.rmi.Remote {
      */
     public java.lang.String registerPublisher(java.lang.String publisherName) throws java.rmi.RemoteException;
     
+	/**
+	 * Register data source.
+	 *
+	 * @param pubID the publisher id
+	 * @param dsConfig the data source configuration
+	 * like how many axis and the timeout interval and so on.
+	 * @return the Data source ID
+	 * @throws RemoteException the remote exception
+	 */
+	String registerDataSource(DataSourceConfiguration dsConfig) throws java.rmi.RemoteException;
 }

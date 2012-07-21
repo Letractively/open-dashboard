@@ -1,4 +1,4 @@
-package com.odb.core;
+package com.odb.core.dao.dto;
 
 /**
  * The Class SubscriberInfo.

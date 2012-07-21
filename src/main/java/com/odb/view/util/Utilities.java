@@ -13,7 +13,7 @@ import javax.crypto.spec.PBEParameterSpec;
 
 import org.apache.commons.codec.binary.Base64;
 
-import com.odb.core.ViewConfiguration;
+import com.odb.core.dao.dto.ViewConfiguration;
 import com.odb.view.dashboard.client.dto.DataSourceAxisDetailInfo;
 import com.odb.view.dashboard.client.dto.DataSourceAxisInfo;
 import com.odb.view.dashboard.client.dto.DataSourceInfo;
@@ -97,7 +97,7 @@ public class Utilities {
      * @param si the si
      * @return the client subscriber info
      */
-    public static SubscriberInfo getClientSubscriberInfo(com.odb.core.SubscriberInfo si){
+    public static SubscriberInfo getClientSubscriberInfo(com.odb.core.dao.dto.SubscriberInfo si){
     	SubscriberInfo subscriberInfo=new SubscriberInfo();
     	subscriberInfo.setSubscriberID(si.getSubscriberID());
     	subscriberInfo.setSubscriberName( si.getSubscriberName());
@@ -128,7 +128,7 @@ public class Utilities {
      * @param dataSourceAxisDetailInfo the data source axis detail info
      * @return the client data source axis detail info
      */
-    public static DataSourceAxisDetailInfo getClientDataSourceAxisDetailInfo(com.odb.core.DataSourceAxisDetailInfo dataSourceAxisDetailInfo){
+    public static DataSourceAxisDetailInfo getClientDataSourceAxisDetailInfo(com.odb.core.dao.dto.DataSourceAxisDetailInfo dataSourceAxisDetailInfo){
     	DataSourceAxisDetailInfo dsi = new DataSourceAxisDetailInfo();
     	dsi.setAxisLabelIndex(dataSourceAxisDetailInfo.getAxisLabelIndex());
     	dsi.setAxisLabelValue( dataSourceAxisDetailInfo.getAxisLabelValue());
@@ -143,14 +143,14 @@ public class Utilities {
 	 * @param dataSourceAxisDetailInfoList the data source axis detail info list
 	 * @return the client data source axis info
 	 */
-	public static DataSourceAxisInfo getClientDataSourceAxisInfo(com.odb.core.DataSourceAxisInfo dataSourceAxisInfo, List<com.odb.core.DataSourceAxisDetailInfo> dataSourceAxisDetailInfoList){
+	public static DataSourceAxisInfo getClientDataSourceAxisInfo(com.odb.core.dao.dto.DataSourceAxisInfo dataSourceAxisInfo, List<com.odb.core.dao.dto.DataSourceAxisDetailInfo> dataSourceAxisDetailInfoList){
 		DataSourceAxisInfo dsi = new DataSourceAxisInfo();
 		dsi.setDataSourceAxisID( dataSourceAxisInfo.getDataSourceAxisID());
 		dsi.setDataSourceAxisName( dataSourceAxisInfo.getDataSourceAxisName());
 		dsi.setDataSourceAxisType( dataSourceAxisInfo.getDataSourceAxisType());
 		dsi.setDataSourceID( dataSourceAxisInfo.getDataSourceID());
 		ArrayList<DataSourceAxisDetailInfo> clientDataSourceAxisDetailInfoList = new ArrayList<DataSourceAxisDetailInfo>(dataSourceAxisDetailInfoList.size());
-		for (com.odb.core.DataSourceAxisDetailInfo dataSourceAxisDetailInfo : dataSourceAxisDetailInfoList) {
+		for (com.odb.core.dao.dto.DataSourceAxisDetailInfo dataSourceAxisDetailInfo : dataSourceAxisDetailInfoList) {
 			clientDataSourceAxisDetailInfoList.add(Utilities.getClientDataSourceAxisDetailInfo(dataSourceAxisDetailInfo));
 		}
 		dsi.setDataSourceAxisDetailInfoList(clientDataSourceAxisDetailInfoList);
@@ -163,7 +163,7 @@ public class Utilities {
 	 * @param dataSourceInfo the data source info
 	 * @return the client data source info
 	 */
-	public static DataSourceInfo getClientDataSourceInfo(com.odb.core.DataSourceInfo dataSourceInfo){
+	public static DataSourceInfo getClientDataSourceInfo(com.odb.core.dao.dto.DataSourceInfo dataSourceInfo){
 		DataSourceInfo dsi = new DataSourceInfo();	
 		dsi.setDataSourceID(dataSourceInfo.getDataSourceID());
 		dsi.setPublisherID(dataSourceInfo.getPublisherID());
@@ -196,7 +196,7 @@ public class Utilities {
 	 * @param subscriberViewConfiguration the subscriber view configuration
 	 * @return the cliect subscriber view configuration
 	 */
-	public static SubscriberViewConfiguration getCliectSubscriberViewConfiguration(com.odb.core.SubscriberViewConfiguration subscriberViewConfiguration){
+	public static SubscriberViewConfiguration getCliectSubscriberViewConfiguration(com.odb.core.dao.dto.SubscriberViewConfiguration subscriberViewConfiguration){
 		SubscriberViewConfiguration svc = new SubscriberViewConfiguration();
 		svc.setSubscriberID(subscriberViewConfiguration.getSubscriberID());
 		svc.setSubsriberDataSourceID(subscriberViewConfiguration.getSubsriberDataSourceID());

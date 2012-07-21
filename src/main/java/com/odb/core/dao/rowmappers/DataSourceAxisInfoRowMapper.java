@@ -1,11 +1,11 @@
-package com.odb.core.dao;
+package com.odb.core.dao.rowmappers;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import org.springframework.jdbc.core.RowMapper;
 
-import com.odb.core.DataSourceAxisInfo;
+import com.odb.core.dao.dto.DataSourceAxisInfo;
 
 /**
  * The Class DataSourceAxisInfoRowMapper.

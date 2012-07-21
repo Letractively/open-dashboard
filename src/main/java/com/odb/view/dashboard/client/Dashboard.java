@@ -38,6 +38,7 @@ import com.google.gwt.user.client.ui.Tree;
 import com.google.gwt.user.client.ui.TreeItem;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
+import com.odb.core.service.DataSourceConfiguration;
 import com.odb.view.core.ActionProcessor;
 import com.odb.view.dashboard.client.charts.ODBChart;
 import com.odb.view.dashboard.client.dto.DataSourceAxisInfo;
@@ -158,15 +159,15 @@ public class Dashboard implements EntryPoint {
 			public void onClick(ClickEvent event) {
 				newDataSourceID.append(dynamicTree.getSelectedItem().getText());
 //				dashboardService.getDataSourceAllDetails(dataSourceID, callback)
-				dashboardService.getDataSourceAllDetails(newDataSourceID.toString(), new AsyncCallback<HashMap<String, Serializable>>() {
+				dashboardService.getDataSourceAllDetails(newDataSourceID.toString(), new AsyncCallback<DataSourceConfiguration>() {
 
 					public void onFailure(Throwable caught) {
 						// TODO Auto-generated method stub
 						
 					}
 
-					public void onSuccess(HashMap<String, Serializable> result) {
-						flowPanel.add(createChart((DataSourceInfo)result.get("dataSourceInfo"), (ArrayList<DataSourceAxisInfo>)result.get("dataSourceAxisInfoList"), "1", 400, 300));
+						public void onSuccess(DataSourceConfiguration result) {
+						flowPanel.add(createChart(result, "1", 400, 300));
 						
 					}
 				});
@@ -279,7 +280,7 @@ public class Dashboard implements EntryPoint {
 		return menu;
 	}
 
-	private Widget createChart(final DataSourceInfo dataSourceInfo, ArrayList<DataSourceAxisInfo> dataSourceAxisInfoList, String chartID,
+	private Widget createChart(final DataSourceConfiguration dsConfig, String chartID,
 			int width, int height) {
 		// the panel that will hold the chart
 		final ContentPanel panel = new ContentPanel(GWT.<ContentPanelAppearance> create(FramedPanelAppearance.class));
@@ -298,14 +299,14 @@ public class Dashboard implements EntryPoint {
 
 		layout.setBorders(true);
 		// table that provide the data source information
-		final FlexTable flexTable = createInfoTable(dataSourceInfo);
+		final FlexTable flexTable = createInfoTable(dsConfig.getPublisherID(), dsConfig.getDsName(), dsConfig.getDsTimeoutInterval());
 		layout.add(flexTable, new VerticalLayoutData(1, height / 10));
 		final Label errorLabel = new Label();
 		errorLabel.setHeight("20px");
 		errorLabel.setText("");
 
 		try {
-			final ODBChart chart = ChartFactory.getChart(dataSourceInfo, dataSourceAxisInfoList);
+			final ODBChart chart = ChartFactory.getChart(dsConfig);
 			layout.add(chart.asWidget(), new VerticalLayoutData(1, 1));
 			layout.add(errorLabel);
 
@@ -313,16 +314,16 @@ public class Dashboard implements EntryPoint {
 			GWTPushContext pushContext = GWTPushContext.getInstance();
 			pushContext.addPushEventListener(new PushEventListener() {
 				public void onPushEvent() {
-					dashboardService.getDataUpdate(dataSourceInfo.getDataSourceID(), "1", new AsyncCallback<DataVO>() {
+					dashboardService.getDataUpdate(dsConfig.getDsID(), "1", new AsyncCallback<DataVO>() {
 						public void onFailure(Throwable caught) {
-							errorLabel.setText("Error, could not get Data Update for Data Source: " + dataSourceInfo.getDataSourceName()
+							errorLabel.setText("Error, could not get Data Update for Data Source: " + dsConfig.getDsName()
 									+ ". Please Contact System Support. ");
 						}
 
 						public void onSuccess(DataVO result) {
 							chart.updateChartData(result, errorLabel);
 							flexTable.setText(1, 3, dateFormat.format(new Date()));
-							debug(dataSourceInfo.getDataSourceID() + " # " +
+							debug(dsConfig.getDsID() + " # " +
 									((com.odb.view.dashboard.client.dto.LiveChartVO)result).getDate() + ":" 
 							+ ((com.odb.view.dashboard.client.dto.LiveChartVO)result).getVariable() + " | "
 							+ ((com.odb.view.dashboard.client.dto.LiveChartVO)result).getVariable2() + " | "
@@ -330,7 +331,7 @@ public class Dashboard implements EntryPoint {
 						}
 					});
 				}
-			}, dataSourceInfo.getDataSourceID());
+			}, dsConfig.getDsID());
 
 		} catch (ChartSettingsNotValidException e) {
 			errorLabel.setText(e.getMessage());
@@ -338,14 +339,14 @@ public class Dashboard implements EntryPoint {
 		return panel;
 	}
 
-	private FlexTable createInfoTable(DataSourceInfo dataSourceInfo) {
+	private FlexTable createInfoTable(String publisherID, String dsName, Long timeoutInterval) {
 		FlexTable table = new FlexTable();
 		table.setText(0, 0, "Publisher ID:");
 		table.getFlexCellFormatter().addStyleName(0, 0, "nameText");
 		table.getFlexCellFormatter().setWidth(0, 0, "20%");
 		table.getFlexCellFormatter().setHorizontalAlignment(0, 0, HorizontalAlignmentConstant.startOf(Direction.LTR));
 		table.getFlexCellFormatter().setWordWrap(0, 0, false);
-		table.setText(0, 1, dataSourceInfo.getPublisherID());
+		table.setText(0, 1, publisherID);
 		table.getFlexCellFormatter().addStyleName(0, 1, "valueText");
 		table.getFlexCellFormatter().setWidth(0, 1, "30%");
 		table.getFlexCellFormatter().setHorizontalAlignment(0, 1, HorizontalAlignmentConstant.startOf(Direction.LTR));
@@ -356,7 +357,7 @@ public class Dashboard implements EntryPoint {
 		table.getFlexCellFormatter().setWidth(0, 2, "20%");
 		table.getFlexCellFormatter().setHorizontalAlignment(0, 2, HorizontalAlignmentConstant.startOf(Direction.LTR));
 		table.getFlexCellFormatter().setWordWrap(0, 2, false);
-		table.setText(0, 3, dataSourceInfo.getDataSourceName());
+		table.setText(0, 3, dsName);
 		table.getFlexCellFormatter().addStyleName(0, 3, "valueText");
 		table.getFlexCellFormatter().setWidth(0, 3, "30%");
 		table.getFlexCellFormatter().setHorizontalAlignment(0, 3, HorizontalAlignmentConstant.startOf(Direction.LTR));
@@ -367,7 +368,7 @@ public class Dashboard implements EntryPoint {
 		table.getFlexCellFormatter().setWidth(1, 0, "20%");
 		table.getFlexCellFormatter().setHorizontalAlignment(1, 0, HorizontalAlignmentConstant.startOf(Direction.LTR));
 		table.getFlexCellFormatter().setWordWrap(1, 0, false);
-		table.setText(1, 1, dataSourceInfo.getTimeoutInterval().toString());
+		table.setText(1, 1, timeoutInterval.toString());
 		table.getFlexCellFormatter().addStyleName(1, 1, "valueText");
 		table.getFlexCellFormatter().setWidth(1, 1, "30%");
 		table.getFlexCellFormatter().setHorizontalAlignment(1, 1, HorizontalAlignmentConstant.startOf(Direction.LTR));
@@ -404,28 +405,43 @@ public class Dashboard implements EntryPoint {
 		splitFlexTable.setWidget(2, 0, setupDebug());
 		RootPanel.get().add(splitFlexTable);
 
-		dashboardService.getCurrentViewSettings(new AsyncCallback<ViewSettings>() {
+		dashboardService.getCurrentSubscriptions(new AsyncCallback<ArrayList<DataSourceConfiguration>>() {
 
 			public void onFailure(Throwable caught) {
-				debug(caught.getMessage() + ", Please Consult System Support.");
+				// TODO Auto-generated method stub
+				
 			}
 
-			public void onSuccess(ViewSettings viewSettings) {
-				debug("Success");
-				for (ViewConfig viewConfig : viewSettings.viewConfigList) {
-					final DataSourceInfo dataSourceInfo = (DataSourceInfo) viewSettings.viewConfigMap.get("dataSourceInfo_" + viewConfig.getViewLocationID());
-					final SubscriberDataSource subscriberDataSource = (SubscriberDataSource) viewSettings.viewConfigMap.get("subscriberDataSource_"
-							+ viewConfig.getViewLocationID());
-
-					flowPanel.add(createChart((DataSourceInfo) viewSettings.viewConfigMap.get("dataSourceInfo_" + viewConfig.getViewLocationID()),
-							((ArrayList<DataSourceAxisInfo>) viewSettings.viewConfigMap.get("dataSourceAxisInfoList_" + viewConfig.getViewLocationID())),
-							viewConfig.getViewLocationID(), viewConfig.getViewWidth(), viewConfig.getViewHeight()));
-
+			public void onSuccess(ArrayList<DataSourceConfiguration> result) {
+				Integer chartID = 0;
+				for (DataSourceConfiguration dsConfig : result) {
+					flowPanel.add(createChart(dsConfig, (chartID++).toString(), 400,300));
 				}
-
-			}
-
-		});
+				
+			}});
+		
+//		dashboardService.getCurrentViewSettings(new AsyncCallback<ViewSettings>() {
+//
+//			public void onFailure(Throwable caught) {
+//				debug(caught.getMessage() + ", Please Consult System Support.");
+//			}
+//
+//			public void onSuccess(ViewSettings viewSettings) {
+//				debug("Success");
+//				for (ViewConfig viewConfig : viewSettings.viewConfigList) {
+//					final DataSourceInfo dataSourceInfo = (DataSourceInfo) viewSettings.viewConfigMap.get("dataSourceInfo_" + viewConfig.getViewLocationID());
+////					final SubscriberDataSource subscriberDataSource = (SubscriberDataSource) viewSettings.viewConfigMap.get("subscriberDataSource_"
+////							+ viewConfig.getViewLocationID());
+//
+//					flowPanel.add(createChart((DataSourceInfo) viewSettings.viewConfigMap.get("dataSourceInfo_" + viewConfig.getViewLocationID()),
+//							((ArrayList<DataSourceAxisInfo>) viewSettings.viewConfigMap.get("dataSourceAxisInfoList_" + viewConfig.getViewLocationID())),
+//							viewConfig.getViewLocationID(), viewConfig.getViewWidth(), viewConfig.getViewHeight()));
+//
+//				}
+//
+//			}
+//
+//		});
 
 	}
 }

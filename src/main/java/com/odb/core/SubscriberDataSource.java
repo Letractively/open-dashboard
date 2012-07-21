@@ -1,5 +1,8 @@
 package com.odb.core;
 
+import com.odb.core.dao.dto.GraphInfo;
+import com.odb.core.dao.dto.SubscriberViewConfiguration;
+
 /**
  * The Class SubscriberDataSource.
  * 
