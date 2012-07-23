@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" 
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+xmlns:jaxws="http://cxf.apache.org/jaxws"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans 
+    http://www.springframework.org/schema/beans/spring-beans.xsd 
+    http://cxf.apache.org/jaxws 
+    http://cxf.apache.org/schemas/jaxws.xsd">
+    
+    <import resource="classpath:META-INF/cxf/cxf.xml" />
+    <import resource="classpath:META-INF/cxf/cxf-extension-soap.xml" />
+    <import resource="classpath:META-INF/cxf/cxf-servlet.xml" />
+
+   <!-- Spring manage ServiceBean -->
+    <bean id="registerServ" class="com.odb.collector.RegisterServiceImpl" >
+    	<property name="odbCore" ref="OpenDashBoardCore" />
+    </bean>
+    <bean id="collectorServ" class="com.odb.collector.CollectorServiceImpl" >
+    	<property name="odbCore" ref="OpenDashBoardCore" />
+    </bean>
+    <bean id="inquiryServ" class="com.odb.collector.InquiryServiceImpl" >
+    	<property name="odbCore" ref="OpenDashBoardCore" />
+    </bean>
+
+    <!-- JAX-WS Service Endpoint -->    
+    <jaxws:endpoint id="registerService" implementor="#registerServ" address="/registerService" />
+    <jaxws:endpoint id="collectorService" implementor="#collectorServ" address="/collectorService" />
+    <jaxws:endpoint id="inquiryService" implementor="#inquiryServ" address="/inquiryService" />    
+</beans>
