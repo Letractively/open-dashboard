@@ -145,7 +145,7 @@ public class LiveChart extends ODBChart {
 
 		Date date = startDate;
 		// now set the init data
-		for (int i = 0; i < 7; i++) {
+		for (int i = 0; i < 50; i++) {
 			store.add(new LiveChartVO(date, 0, 0, 0));
 			date = CalendarUtil.copyDate(date);
 			date.setTime(date.getTime() + timeAxisFrequency);
@@ -265,6 +265,7 @@ public class LiveChart extends ODBChart {
 		this.threshold = threshold;
 	}
 
+	private static long chartUpdateCount =0;
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -274,7 +275,9 @@ public class LiveChart extends ODBChart {
 	 */
 	@Override
 	public void updateChartData(DataVO data, Label errorLabel) {
+		
 		LiveChartVO liveChartData = (LiveChartVO) data;
+		Date beginDate = CalendarUtil.copyDate(timeAxis.getStartDate());
 		Date startDate = CalendarUtil.copyDate(timeAxis.getStartDate());
 		Date endDate = CalendarUtil.copyDate(timeAxis.getEndDate());
 		// gets the last update time
@@ -307,7 +310,7 @@ public class LiveChart extends ODBChart {
 		startDate.setTime(startDate.getTime() + timeDiff);
 		endDate.setTime(endDate.getTime() + timeDiff);
 		chart.getStore().add(liveChartData);
-		timeAxis.setStartDate(startDate);
+		//timeAxis.setStartDate(startDate);
 		timeAxis.setEndDate(endDate);
 		// now redrawChart
 		chart.redrawChart();

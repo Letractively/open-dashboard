@@ -1,7 +1,7 @@
 /**
  * 
  */
-package com.odb.core.dao;
+package com.odb.core.dao.rowmappers;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -9,9 +9,9 @@ import java.sql.SQLException;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.ResultSetExtractor;
 
-import com.odb.core.GraphInfo;
 import com.odb.core.SubscriberDataSource;
-import com.odb.core.SubscriberViewConfiguration;
+import com.odb.core.dao.dto.GraphInfo;
+import com.odb.core.dao.dto.SubscriberViewConfiguration;
 
 /**
  * The Class SubscriberDataSourceoResultSetExtractor.

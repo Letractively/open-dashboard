@@ -18,8 +18,12 @@ xmlns:jaxws="http://cxf.apache.org/jaxws"
     <bean id="collectorServ" class="com.odb.collector.CollectorServiceImpl" >
     	<property name="odbCore" ref="OpenDashBoardCore" />
     </bean>
+    <bean id="inquiryServ" class="com.odb.collector.InquiryServiceImpl" >
+    	<property name="odbCore" ref="OpenDashBoardCore" />
+    </bean>
 
     <!-- JAX-WS Service Endpoint -->    
     <jaxws:endpoint id="registerService" implementor="#registerServ" address="/registerService" />
-    <jaxws:endpoint id="collectorService" implementor="#collectorServ" address="/collectorService" />    
+    <jaxws:endpoint id="collectorService" implementor="#collectorServ" address="/collectorService" />
+    <jaxws:endpoint id="inquiryService" implementor="#inquiryServ" address="/inquiryService" />    
 </beans>

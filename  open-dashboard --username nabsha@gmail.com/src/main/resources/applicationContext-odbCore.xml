@@ -25,18 +25,44 @@
 		id="dataSource"
 		class="com.mchange.v2.c3p0.ComboPooledDataSource"
 	>
+<!-- 		<property -->
+<!-- 			name="driverClass" -->
+<!-- 			value="com.mysql.jdbc.Driver" /> -->
+<!-- 		<property -->
+<!-- 			name="jdbcUrl" -->
+<!-- 			value="jdbc:mysql://localhost:3306/test" /> -->
+<!-- 		<property -->
+<!-- 			name="user" -->
+<!-- 			value="root" /> -->
+<!-- 		<property -->
+<!-- 			name="password" -->
+<!-- 			value="pass" /> -->
+<!-- 		<property -->
+<!-- 			name="initialPoolSize" -->
+<!-- 			value="3" /> -->
+<!-- 		<property -->
+<!-- 			name="minPoolSize" -->
+<!-- 			value="3" /> -->
+<!-- 		<property -->
+<!-- 			name="acquireIncrement" -->
+<!-- 			value="3" /> -->
+<!-- 		<property -->
+<!-- 			name="maxPoolSize" -->
+<!-- 			value="15" /> -->
+<!-- 	</bean> -->
+
 		<property
 			name="driverClass"
-			value="com.mysql.jdbc.Driver" />
+			value="org.hsqldb.jdbcDriver" />
 		<property
 			name="jdbcUrl"
-			value="jdbc:mysql://localhost:3306/test" />
+			value="jdbc:hsqldb:hsql://localhost:9001" />
 		<property
 			name="user"
-			value="root" />
+			value="SA" />
 		<property
 			name="password"
-			value="pass" />
+			value="" />
 		<property
 			name="initialPoolSize"
 			value="3" />
@@ -50,7 +76,6 @@
 			name="maxPoolSize"
 			value="15" />
 	</bean>
-
 
 	<bean
 		id="ODBDAO"

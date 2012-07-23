@@ -15,15 +15,16 @@ import org.apache.log4j.Logger;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.odb.core.DataSourceAxisDetailInfo;
-import com.odb.core.DataSourceAxisInfo;
-import com.odb.core.DataSourceInfo;
-import com.odb.core.DataSourceSeries;
-import com.odb.core.PublisherInfo;
 import com.odb.core.SubscriberDataSource;
-import com.odb.core.SubscriberInfo;
-import com.odb.core.ViewConfiguration;
 import com.odb.core.dao.ODBDAO;
+import com.odb.core.dao.dto.DataSourceAxisDetailInfo;
+import com.odb.core.dao.dto.DataSourceAxisInfo;
+import com.odb.core.dao.dto.DataSourceInfo;
+import com.odb.core.dao.dto.DataSourceSeries;
+import com.odb.core.dao.dto.PublisherInfo;
+import com.odb.core.dao.dto.SubscriberInfo;
+import com.odb.core.dao.dto.ViewConfiguration;
+import com.odb.core.service.exceptions.InvalidAuthenticationException;
 
 /**
  * The Class OpenDashBoard.
@@ -32,55 +33,67 @@ import com.odb.core.dao.ODBDAO;
  * 
  */
 public class OpenDashBoard {
-	
+
 	/** The odb dao. */
 	private ODBDAO odbDAO;
-	
+
 	/** The properties. */
 	private Properties properties;
-	
+
 	private String pushURL;
-	
+
 	/** The log. */
 	private static Logger log = Logger.getLogger(OpenDashBoard.class);
-	
+
 	/**
 	 * Sets the properties.
-	 *
-	 * @param properties the new properties
+	 * 
+	 * @param properties
+	 *            the new properties
 	 */
 	public void setProperties(Properties properties) {
 		this.properties = properties;
 	}
 
-
 	/**
 	 * Sets the odb dao.
-	 *
-	 * @param odbDAO the new odb dao
+	 * 
+	 * @param odbDAO
+	 *            the new odb dao
 	 */
 	public void setOdbDAO(ODBDAO odbDAO) {
 		this.odbDAO = odbDAO;
 	}
-	
-	
+
 	/**
 	 * Subscriber login.
-	 *
-	 * @param username the username
-	 * @param password the password
+	 * 
+	 * @param username
+	 *            the username
+	 * @param password
+	 *            the password
 	 * @return the subscriber info
 	 */
-	public SubscriberInfo subscriberLogin(String username, String password){
-		return odbDAO.subscriberLogin(username, password);
+	public SubscriberInfo subscriberLogin(String username, String password) throws InvalidAuthenticationException {
+		SubscriberInfo subInfo = null;
+		try {
+			subInfo = odbDAO.subscriberLogin(username, password);
+			if (subInfo == null)
+				throw new InvalidAuthenticationException("Invalid Credentials");
+		} catch (SQLException e) {
+			log.error("Subscriber Login failed..." + e);
+		}
+		return subInfo;
 	}
-	
+
 	/**
 	 * Register publisher.
-	 *
-	 * @param pubName the publisher name
+	 * 
+	 * @param pubName
+	 *            the publisher name
 	 * @return the string publisher Id
-	 * @throws SQLException the sQL exception
+	 * @throws SQLException
+	 *             the sQL exception
 	 */
 	public String registerPublisher(String pubName) throws SQLException {
 		PublisherInfo pInfo = new PublisherInfo();
@@ -94,26 +107,30 @@ public class OpenDashBoard {
 	/**
 	 * Register data source.
 	 * 
-	 *
-	 * @param pubID the publisher id
-	 * @param dsConfig the data source configuration
+	 * 
+	 * @param pubID
+	 *            the publisher id
+	 * @param dsConfig
+	 *            the data source configuration
 	 * @return the string
-	 * @throws SQLException the sQL exception
+	 * @throws SQLException
+	 *             the sQL exception
 	 */
-	@Transactional(propagation=Propagation.MANDATORY)
-	public String registerDataSource(String pubID, DataSourceConfiguration dsConfig) throws SQLException {
-		String dsID = pubID + "_" + System.currentTimeMillis();
+	@Transactional(propagation = Propagation.MANDATORY)
+	public String registerDataSource(DataSourceConfiguration dsConfig) throws SQLException {
+		String dsID = dsConfig.getPublisherID() + "_" + System.currentTimeMillis();
 		DataSourceInfo dsInfo = new DataSourceInfo();
-		dsInfo.setPublisherID(pubID);
+		dsInfo.setPublisherID(dsConfig.getPublisherID());
 		dsInfo.setDataSourceID(dsID);
 		dsInfo.setDataSourceName(dsConfig.getDsName());
 		dsInfo.setTimeoutInterval(dsConfig.getDsTimeoutInterval());
+		dsInfo.setSeriesCount(dsConfig.getSeriesCount());
 		odbDAO.addDataSource(dsInfo);
 
 		for (int i = 0; i < dsConfig.getXsInfo().size(); i++) {
 			DataSourceAxisInfo dsAxisInfo = new DataSourceAxisInfo();
 			dsAxisInfo.setDataSourceID(dsID);
-			dsAxisInfo.setDataSourceAxisID(dsID+ "_" + System.currentTimeMillis());
+			dsAxisInfo.setDataSourceAxisID(dsID + "_" + System.currentTimeMillis());
 			dsAxisInfo.setDataSourceAxisName(dsConfig.getXsInfo().get(i).getDataSourceAxisName());
 			dsAxisInfo.setDataSourceAxisType(dsConfig.getXsInfo().get(i).getDataSourceAxisType());
 			odbDAO.addDataSourceAxis(dsAxisInfo);
@@ -132,11 +149,15 @@ public class OpenDashBoard {
 
 	/**
 	 * Adds the data series.
-	 *
-	 * @param pubID the publisher id
-	 * @param dsID the data source id
-	 * @param userData the user data
-	 * @throws SQLException the sQL exception
+	 * 
+	 * @param pubID
+	 *            the publisher id
+	 * @param dsID
+	 *            the data source id
+	 * @param userData
+	 *            the user data
+	 * @throws SQLException
+	 *             the sQL exception
 	 */
 	public void addDataSeries(String pubID, String dsID, Map<Long, Double> userData) throws SQLException {
 		Iterator<Long> it = userData.keySet().iterator();
@@ -150,166 +171,226 @@ public class OpenDashBoard {
 		}
 		publish(dsID);
 	}
-	
+
+	public PublisherInfo getPublisher(String publisherID) throws SQLException {
+		return odbDAO.getPublisherByID(publisherID);
+	}
+
 	/**
 	 * Gets the all publishers.
-	 *
+	 * 
 	 * @return the all publishers
-	 * @throws SQLException the sQL exception
+	 * @throws SQLException
+	 *             the sQL exception
 	 */
 	public ArrayList<PublisherInfo> getAllPublishers() throws SQLException {
 		return odbDAO.getAllPublishers();
 	}
-	
+
 	/**
 	 * Gets the latest series data.
-	 *
-	 * @param dsID the ds id
-	 * @param rowNum the row num
+	 * 
+	 * @param dsID
+	 *            the ds id
+	 * @param rowNum
+	 *            the row num
 	 * @return the latest series data
 	 */
-	public List<DataSourceSeries> getLatestSeriesData(String dsID, int rowNum){
-		return odbDAO.getLatestSeriesData(dsID, rowNum);
+	public List<DataSourceSeries> getLatestSeriesData(String dsID, int rowNum) {
+		List<DataSourceSeries> dsList = null;
+		try {
+			dsList = odbDAO.getLatestSeriesData(dsID, rowNum);
+		} catch (SQLException e) {
+			log.error("Getting Data Series Failed for datasource ID:" + dsID + e);
+		}
+
+		return dsList;
 	}
-	
+
+	/**
+	 * Gets the all data source by subscriber ID.
+	 * 
+	 * @param pubID
+	 *            the pub id
+	 * @return the all data source by subscriber
+	 * @throws SQLException
+	 *             the sQL exception
+	 */
+	public ArrayList<DataSourceInfo> getAllDataSourceBySubscriber(String subscriberID) throws SQLException {
+		return odbDAO.getAllDataSourceBySubscriberID(subscriberID);
+	}
+
 	/**
 	 * Gets the all data source by publisher.
-	 *
-	 * @param pubID the pub id
+	 * 
+	 * @param pubID
+	 *            the pub id
 	 * @return the all data source by publisher
-	 * @throws SQLException the sQL exception
+	 * @throws SQLException
+	 *             the sQL exception
 	 */
 	public ArrayList<DataSourceInfo> getAllDataSourceByPublisher(String pubID) throws SQLException {
 		return odbDAO.getAllDataSourceByPublisherID(pubID);
 	}
-	
+
 	/**
 	 * Gets the data source by data source id.
-	 *
-	 * @param dsID the ds id
+	 * 
+	 * @param dsID
+	 *            the ds id
 	 * @return the data source by data source id
-	 * @throws SQLException the sQL exception
+	 * @throws SQLException
+	 *             the sQL exception
 	 */
 	public DataSourceInfo getDataSourceByDataSourceID(String dsID) throws SQLException {
 		return odbDAO.getDataSourceByDataSourceID(dsID);
 	}
-	
+
 	/**
 	 * Gets the data source configuration by.
-	 *
-	 * @param dsID the ds id
+	 * 
+	 * @param dsID
+	 *            the ds id
 	 * @return the data source configuration by
-	 * @throws SQLException the sQL exception
+	 * @throws SQLException
+	 *             the sQL exception
 	 */
 	public DataSourceConfiguration getDataSourceConfigurationBy(String dsID) throws SQLException {
 		DataSourceConfiguration dsConfig = new DataSourceConfiguration();
 		DataSourceInfo dsInfo = odbDAO.getDataSourceByDataSourceID(dsID);
 		dsConfig.setDsName(dsInfo.getDataSourceName());
 		dsConfig.setDsTimeoutInterval(dsInfo.getTimeoutInterval());
-		ArrayList<DataSourceAxisInfo> dsAxisInfoAll = odbDAO.getAllAxisInfoByDataSourceID(dsID);
-		ArrayList<AxisInfo> xsInfoAll = new ArrayList<AxisInfo>();
-		for (int i = 0 ; i < dsAxisInfoAll.size(); i++) {
+		dsConfig.setSeriesCount(dsInfo.getSeriesCount());
+		dsConfig.setPublisherID(dsInfo.getPublisherID());
+		dsConfig.setDsID(dsID);
+		List<DataSourceAxisInfo> dsAxisInfoAll = odbDAO.getDataSourceAxisInfo(dsID);
+		List<AxisInfo> xsInfoAll = new ArrayList<AxisInfo>();
+		for (int i = 0; i < dsAxisInfoAll.size(); i++) {
 			DataSourceAxisInfo dsAxisInfo = dsAxisInfoAll.get(i);
 			AxisInfo xsInfo = new AxisInfo();
 			xsInfo.setDataSourceAxisName(dsAxisInfo.getDataSourceAxisName());
 			xsInfo.setDataSourceAxisType(dsAxisInfo.getDataSourceAxisType());
-			ArrayList<DataSourceAxisDetailInfo> dsAxisInfoDetailAll = odbDAO.getAllAxisDetailsByDataSourceID(dsAxisInfo.getDataSourceAxisID());
-			ArrayList<String> axisLabels = new ArrayList<String>();
-			for (int j=0; j < dsAxisInfoDetailAll.size(); j++) {
+			List<DataSourceAxisDetailInfo> dsAxisInfoDetailAll = odbDAO.getDataSourceAxisDetailInfoListBy(dsAxisInfo.getDataSourceAxisID());
+			List<String> axisLabels = new ArrayList<String>();
+			for (int j = 0; j < dsAxisInfoDetailAll.size(); j++) {
 				DataSourceAxisDetailInfo dsAxisInfoDetail = dsAxisInfoDetailAll.get(j);
 				axisLabels.add(dsAxisInfoDetail.getAxisLabelValue());
 			}
-			xsInfo.setAxisLabels(axisLabels);
+			xsInfo.setAxisLabels((ArrayList<String>) axisLabels);
 			xsInfoAll.add(xsInfo);
-			
+
 		}
-		dsConfig.setXsInfo(xsInfoAll);
-		return dsConfig;		
+		dsConfig.setXsInfo((ArrayList<AxisInfo>) xsInfoAll);
+		return dsConfig;
 	}
-	
+
 	/**
 	 * Publish.
 	 * 
 	 * this function is calling the publish action on the Dashboard view module
 	 * 
-	 * the publish action will update the view with the new data of the dataSourceId given.
+	 * the publish action will update the view with the new data of the
+	 * dataSourceId given.
 	 * 
-	 *
-	 * @param dataSourceId the data source id
-	 * @return true, if the return code of the publish action is reponse code 200, otherwise it will return false.
+	 * 
+	 * @param dataSourceId
+	 *            the data source id
+	 * @return true, if the return code of the publish action is reponse code
+	 *         200, otherwise it will return false.
 	 */
-	public boolean publish(String dataSourceId){
+	public boolean publish(String dataSourceId) {
 		URL url;
 		try {
-			url = new URL(pushURL + "?dataSourceId="+dataSourceId);
+			url = new URL(pushURL + "?dataSourceId=" + dataSourceId);
 			HttpURLConnection httpConnection = (HttpURLConnection) url.openConnection();
 			int code = httpConnection.getResponseCode();
-            return (code==200);    
+			return (code == 200);
 		} catch (MalformedURLException e) {
-			log.error("error while Publishing dataSourceId: "+ dataSourceId, e);
+			log.error("error while Publishing dataSourceId: " + dataSourceId, e);
 		} catch (IOException e) {
-			log.error("error while Publishing dataSourceId: "+ dataSourceId, e);
+			log.error("error while Publishing dataSourceId: " + dataSourceId, e);
 		}
 		return false;
 	}
 
-
 	/**
 	 * Gets the view configuration list.
-	 *
+	 * 
 	 * @return the view configuration list
 	 */
 	public List<ViewConfiguration> getViewConfigurationList() {
-		return odbDAO.getViewConfigurationList();
-	}
-	
-	/**
-	 * Gets the subscriber data source by.
-	 *
-	 * @param subscriberId the subscriber id
-	 * @param viewLocationID the view location id
-	 * @return the subscriber data source by
-	 */
-	public SubscriberDataSource getSubscriberDataSourceBy(String subscriberId, String viewLocationID){
-		return odbDAO.getSubscriberDataSourceBy(subscriberId, viewLocationID);
+		List<ViewConfiguration> viewConfigList = null;
+		try {
+			viewConfigList = odbDAO.getViewConfigurationList();
+		} catch (SQLException e) {
+			log.error("Getting View configuration Failed..." + e);
+		}
+		return viewConfigList;
 	}
 
+	/**
+	 * Gets the subscriber data source by.
+	 * 
+	 * @param subscriberId
+	 *            the subscriber id
+	 * @param viewLocationID
+	 *            the view location id
+	 * @return the subscriber data source by
+	 */
+	public SubscriberDataSource getSubscriberDataSourceBy(String subscriberId, String viewLocationID) {
+		SubscriberDataSource sds = null;
+		try {
+			sds = odbDAO.getSubscriberDataSourceBy(subscriberId, viewLocationID);
+		} catch (SQLException e) {
+			log.error("Getting Subscriber DataSource failed for subscriberID:" + subscriberId + " SubsrciptionID:" + viewLocationID + e);
+		}
+		return sds;
+	}
 
 	/**
 	 * Gets the data source axis info.
-	 *
-	 * @param dataSourceID the data source id
+	 * 
+	 * @param dataSourceID
+	 *            the data source id
 	 * @return the data source axis info
 	 */
 	public List<DataSourceAxisInfo> getDataSourceAxisInfo(String dataSourceID) {
-		return odbDAO.getDataSourceAxisInfo(dataSourceID);
+		List<DataSourceAxisInfo> dsAxisList = null;
+		try {
+			dsAxisList = odbDAO.getDataSourceAxisInfo(dataSourceID);
+		} catch (SQLException e) {
+			log.error("Getting Datasource Axis Info failed for datasoruce ID:" + dataSourceID + e);
+		}
+		return dsAxisList;
 	}
-
 
 	/**
 	 * Gets the data source axis detail info list by.
-	 *
-	 * @param axisId the axis id
+	 * 
+	 * @param axisId
+	 *            the axis id
 	 * @return the data source axis detail info list by
 	 */
 	public List<DataSourceAxisDetailInfo> getDataSourceAxisDetailInfoListBy(String axisId) {
-		return odbDAO.getDataSourceAxisDetailInfoListBy(axisId);
+		List<DataSourceAxisDetailInfo> dsAxisListAll=null;
+		try {
+			dsAxisListAll = odbDAO.getDataSourceAxisDetailInfoListBy(axisId);
+		} catch (SQLException e) {
+			log.error("Getting DataSource Axis Details failed for axisid:" + axisId + e);
+		}
+		return dsAxisListAll;
 	}
-
 
 	public DataSourceInfo getDataSourceInfo(String datasourceId) throws SQLException {
 		return odbDAO.getDataSourceByDataSourceID(datasourceId);
 	}
 
-
 	public String getPushURL() {
 		return pushURL;
 	}
-
 
 	public void setPushURL(String pushURL) {
 		this.pushURL = pushURL;
 	}
 
-	
 }

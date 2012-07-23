@@ -1,11 +1,12 @@
 package com.odb.core.service;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
 /**
  * The Class AxisInfo.
  */
-public class AxisInfo {
+public class AxisInfo  implements Serializable{
 	
 	/** The data source axis name. */
 	private String dataSourceAxisName;

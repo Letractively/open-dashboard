@@ -6,6 +6,8 @@ package com.odb.view.dashboard.client;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.odb.core.service.AxisInfo;
+import com.odb.core.service.DataSourceConfiguration;
 import com.odb.view.dashboard.client.charts.LiveChart;
 import com.odb.view.dashboard.client.charts.ODBChart;
 import com.odb.view.dashboard.client.dto.DataSourceAxisDetailInfo;
@@ -36,21 +38,14 @@ public class ChartFactory {
 	 * 
 	 * @see ODBChart
 	 */
-	public static ODBChart getChart(ViewSettings viewSettings, ViewConfig viewConfig, int seriesCount) throws ChartSettingsNotValidException{
-		ODBChart chart = null;
-		SubscriberDataSource subscriberDataSource = (SubscriberDataSource) viewSettings.viewConfigMap.get("subscriberDataSource_"+viewConfig.getViewLocationID());
-		DataSourceInfo dataSourceInfo = (DataSourceInfo) viewSettings.viewConfigMap.get("dataSourceInfo_"+viewConfig.getViewLocationID());
+	public static ODBChart getChart(DataSourceConfiguration dsConfig) throws ChartSettingsNotValidException{
+		//ODBChart chart = null;
+		//SubscriberDataSource subscriberDataSource = (SubscriberDataSource) viewSettings.viewConfigMap.get("subscriberDataSource_"+viewConfig.getViewLocationID());
+		//DataSourceInfo dataSourceInfo = (DataSourceInfo) viewSettings.viewConfigMap.get("dataSourceInfo_"+viewConfig.getViewLocationID());
 		@SuppressWarnings("unchecked")
-		ArrayList<DataSourceAxisInfo> dataSourceAxisInfoList = (ArrayList<DataSourceAxisInfo>) viewSettings.viewConfigMap.get("dataSourceAxisInfoList_"+viewConfig.getViewLocationID());
-		Integer graphID = Integer.valueOf(subscriberDataSource.getGraphID());
-		switch(graphID){
-			case 1:
-				chart = constructLiveChart(dataSourceInfo, dataSourceAxisInfoList, seriesCount);
-			break;
-			default:
-				chart = constructLiveChart(dataSourceInfo, dataSourceAxisInfoList, seriesCount);
-			break;
-		}
+		//ArrayList<DataSourceAxisInfo> dataSourceAxisInfoList = (ArrayList<DataSourceAxisInfo>) viewSettings.viewConfigMap.get("dataSourceAxisInfoList_"+viewConfig.getViewLocationID());
+		//Integer graphID = Integer.valueOf(subscriberDataSource.getGraphID());
+		ODBChart chart = constructLiveChart(dsConfig);
 		return chart;
 	}
 	
@@ -62,33 +57,21 @@ public class ChartFactory {
 	 * @return the mobily chart
 	 * @throws ChartSettingsNotValidException the chart settings not valid exception
 	 */
-	private static ODBChart constructLiveChart(DataSourceInfo dataSourceInfo, ArrayList<DataSourceAxisInfo> dataSourceAxisInfoList, int seriesCount) throws ChartSettingsNotValidException{
-		DataSourceAxisInfo dataSourceAxisInfo = null;
+	private static ODBChart constructLiveChart(DataSourceConfiguration dsConfig) throws ChartSettingsNotValidException{
+		AxisInfo dataSourceAxisInfo = null;
 		Integer min, max, minIndex, maxIndex;
 		try {
-			for (DataSourceAxisInfo dsai : dataSourceAxisInfoList) {
+			for (AxisInfo dsai : dsConfig.getXsInfo()) {
 				if("Y".equals(dsai.getDataSourceAxisType())){
 					dataSourceAxisInfo = dsai;
 				}
 			}
-			List<DataSourceAxisDetailInfo> dataSourceAxisDetailInfoList = dataSourceAxisInfo.getDataSourceAxisDetailInfoList();
-			min = null;
-			max = null;
-			minIndex = null;
-			maxIndex = null;
-			for (DataSourceAxisDetailInfo dataSourceAxisDetailInfo : dataSourceAxisDetailInfoList) {
-				if(minIndex == null || dataSourceAxisDetailInfo.getAxisLabelIndex() < minIndex){
-					minIndex = dataSourceAxisDetailInfo.getAxisLabelIndex();
-					min = Integer.parseInt(dataSourceAxisDetailInfo.getAxisLabelValue());
-				}
-				if(maxIndex == null || dataSourceAxisDetailInfo.getAxisLabelIndex() > maxIndex){
-					maxIndex = dataSourceAxisDetailInfo.getAxisLabelIndex();
-					max = Integer.parseInt(dataSourceAxisDetailInfo.getAxisLabelValue());
-				}
-			}
+			ArrayList<String> axisLabels = dataSourceAxisInfo.getAxisLabels();
+			min = Integer.parseInt(axisLabels.get(0));
+			max = Integer.parseInt(axisLabels.get(axisLabels.size() -1));
 		} catch (Exception e) {
 			throw new ChartSettingsNotValidException("The data Source Axis Setting is not valied for Live Chart, please contact your admin");
 		}
-		return new LiveChart(dataSourceInfo.getTimeoutInterval(), min, max, dataSourceAxisInfo.getDataSourceAxisName(), seriesCount);
+		return new LiveChart(dsConfig.getDsTimeoutInterval(), min, max, dataSourceAxisInfo.getDataSourceAxisName(), dsConfig.getSeriesCount());
 	}
 }

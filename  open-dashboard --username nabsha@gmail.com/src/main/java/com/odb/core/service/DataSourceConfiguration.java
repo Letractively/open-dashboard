@@ -1,15 +1,18 @@
 package com.odb.core.service;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
 /**
  * The Class DataSourceConfiguration.
  */
-public class DataSourceConfiguration {
+public class DataSourceConfiguration  implements Serializable {
 	
 	/** The ds name. */
 	private String dsName;
-
+	private String dsID;
+	private int seriesCount;
+	private String publisherID;
 	/** The xs info. */
 	private ArrayList<AxisInfo> xsInfo;
 	
@@ -68,6 +71,31 @@ public class DataSourceConfiguration {
 	 */
 	public void setDsTimeoutInterval(Long dsTimeoutInterval) {
 		this.dsTimeoutInterval = dsTimeoutInterval;
+	}
+
+	public String getDsID() {
+		return dsID;
+	}
+
+//	NOTE: No Client should set DataSource SID 
+	protected void setDsID(String dsID) {
+		this.dsID = dsID;
+	}
+
+	public int getSeriesCount() {
+		return seriesCount;
+	}
+
+	public void setSeriesCount(int seriesCount) {
+		this.seriesCount = seriesCount;
+	}
+
+	public String getPublisherID() {
+		return publisherID;
+	}
+
+	public void setPublisherID(String publisherID) {
+		this.publisherID = publisherID;
 	}
 
 	
