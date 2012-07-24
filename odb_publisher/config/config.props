@@ -1,0 +1,2 @@
+odbserverurl=http://localhost:8080/odbserver
+publisher.config.path=config/publisherConfiguration.xml

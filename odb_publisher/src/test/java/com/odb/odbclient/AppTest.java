@@ -1,11 +1,13 @@
 package com.odb.odbclient;
 
+import com.odb.publisher.PublisherApp;
+
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
 /**
- * Unit test for simple App.
+ * Unit test for simple PublisherApp.
  */
 public class AppTest 
     extends TestCase
@@ -33,6 +35,6 @@ public class AppTest
      */
     public void testApp()
     {
-        assertTrue( true );
+        
     }
 }

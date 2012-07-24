@@ -36,12 +36,8 @@ import com.odb.publisher.dto.SeriesJob;
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.io.xml.DomDriver;
 
-/**
- * Check publisher ID if it does not exist Check if publisher ID is valid on
- * server If publisher invalid
- */
-public class App {
-	private static Logger log = Logger.getLogger(App.class);
+public class PublisherApp {
+	private static Logger log = Logger.getLogger(PublisherApp.class);
 	ArrayList<DataSourceConfiguration> dsConfigList;
 	Properties prop = new Properties();
 	Publisher ps;
@@ -50,9 +46,9 @@ public class App {
 	private InquiryServiceProxy inqWS;
 	private XStream xs;
 
-	public App() {
+	public PublisherApp() {
 		try {
-			prop.load(new FileInputStream("src/main/resources/config.props"));
+			prop.load(new FileInputStream("config/config.props"));
 		} catch (InvalidPropertiesFormatException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -74,22 +70,17 @@ public class App {
 		// dsConfigList = new ArrayList<DataSourceConfiguration>();
 	}
 
-	public boolean isAlreadyPublisher() {
+	public boolean isAlreadyPublisher() throws RemoteException {
 		if (ps.getPublisherID() == null) {
 			System.out.println("Publisher ID does not exist in configuration... requesting publisherID from server");
 			return false;
 		}
 
 		PublisherInfo pInfo;
-		try {
-			pInfo = inqWS.getPublisherInfo(ps.getPublisherID());
-			if (pInfo != null) {
-				log.info("Publisher already registered with server with publisherID=" + pInfo.getPublisherID());
-				return true;
-			}
-		} catch (RemoteException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		pInfo = inqWS.getPublisherInfo(ps.getPublisherID());
+		if (pInfo != null) {
+			log.info("Publisher already registered with server with publisherID=" + pInfo.getPublisherID());
+			return true;
 		}
 		return false;
 	}
@@ -165,18 +156,23 @@ public class App {
 		String in = null;
 		System.out.println("Check & Validating Publisher ID");
 
-		if (!isAlreadyPublisher()) {
-			System.out.println("Registering New Publisher...");
-			System.out.println("Enter Publisher Name:");
-			BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-			try {
-				in = br.readLine();
-				registerPublisher(in);
-			} catch (IOException e) {
-				log.error("Error Checking Publisher ID" + e);
+		try {
+			if (!isAlreadyPublisher()) {
+				System.out.println("Registering New Publisher...");
+				System.out.println("Enter Publisher Name:");
+				BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+				try {
+					in = br.readLine();
+					registerPublisher(in);
+				} catch (IOException e) {
+					log.error("Error Checking Publisher ID" + e);
+				}
 			}
+			System.out.println("Registered Publisher... PublisherID=" + ps.getPublisherID());
+		} catch (RemoteException e) {
+			log.error("Unable to validate publisher ID. Please validate below configurations" + prop);
+			System.exit(0);
 		}
-		System.out.println("Registered Publisher... PublisherID=" + ps.getPublisherID());
 
 	}
 
@@ -212,7 +208,7 @@ public class App {
 
 	private Publisher loadConfig() {
 		try {
-			return (Publisher) xs.fromXML(new FileInputStream("src/main/resources/publisherConfiguration.xml"));
+			return (Publisher) xs.fromXML(new FileInputStream(prop.getProperty("publisher.config.path")));
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -222,7 +218,7 @@ public class App {
 
 	private void storeConfig(Publisher publisher) {
 		try {
-			xs.toXML(publisher, new FileOutputStream("src/main/resources/publisherConfiguration.xml"));
+			xs.toXML(publisher, new FileOutputStream(prop.getProperty("publisher.config.path")));
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -264,7 +260,7 @@ public class App {
 
 	public static void main(String[] args) {
 
-		App a = new App();
+		PublisherApp a = new PublisherApp();
 		a.ps = a.loadConfig();
 
 		System.out.println("Validating Publisher Configuration...");

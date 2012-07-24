@@ -1,3 +1,0 @@
-publisher.publisherID.path=.data/publisherid.props
-server.url=http://localhost:8080/odbserver
-publisher.datasource.config.list.path=.data/publisherds.props

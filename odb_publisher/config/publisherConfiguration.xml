@@ -33,6 +33,7 @@
               <entry>
                 <string>driver</string>
                 <string>com.mysql.jdbc.Driver</string>
+<!--                 <string>oracle.jdbc.driver.OracleDriver</string> -->
               </entry>
               <entry>
                 <string>password</string>
@@ -41,6 +42,7 @@
               <entry>
                 <string>url</string>
                 <string>jdbc:mysql://localhost:3306</string>
+<!--                 <string>jdbc:oracle:thin:@localhost:1530</string> -->
               </entry>
             </jobAttributes>
           </SeriesJob>

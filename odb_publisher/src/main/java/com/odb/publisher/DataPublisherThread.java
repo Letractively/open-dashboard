@@ -34,7 +34,7 @@ public class DataPublisherThread extends Thread {
 
 	DataPublisherThread(String publisherID, DataSourceDetails dS) {
 		try {
-			prop.load(new FileInputStream("src/main/resources/config.props"));
+			prop.load(new FileInputStream("config/config.props"));
 		} catch (InvalidPropertiesFormatException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
