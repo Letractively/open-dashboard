@@ -79,6 +79,12 @@
 			<artifactId>wsdl4j</artifactId>
 			<version>1.6.2</version>
 		</dependency>
+		<dependency>
+			<groupId>org.hsqldb</groupId>
+			<artifactId>hsqldb</artifactId>
+			<version>2.2.8</version>
+		</dependency>
+		
 	</dependencies>
 	<build>
 		<!-- Generate compiled stuff in the folder used for developing mode -->
