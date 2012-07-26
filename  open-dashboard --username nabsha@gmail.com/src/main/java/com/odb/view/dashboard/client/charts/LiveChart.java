@@ -16,6 +16,7 @@ import com.odb.view.dashboard.client.DataVO;
 import com.odb.view.dashboard.client.dto.LiveChartVO;
 import com.sencha.gxt.chart.client.chart.Chart;
 import com.sencha.gxt.chart.client.chart.Chart.Position;
+import com.sencha.gxt.chart.client.chart.Legend;
 import com.sencha.gxt.chart.client.chart.axis.NumericAxis;
 import com.sencha.gxt.chart.client.chart.axis.TimeAxis;
 import com.sencha.gxt.chart.client.chart.series.LineSeries;
@@ -172,7 +173,9 @@ public class LiveChart extends ODBChart {
 			}
 			chart.addSeries(generateSeries(vp, Position.LEFT, color));
 		}
-
+		Legend<LiveChartVO> legends = new Legend<LiveChartVO>();
+		legends.setPosition(Position.BOTTOM);
+		chart.setLegend(legends);
 		return chart;
 	}
 

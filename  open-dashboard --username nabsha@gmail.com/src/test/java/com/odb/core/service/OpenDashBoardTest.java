@@ -13,18 +13,18 @@ public class OpenDashBoardTest {
 
 	@Test
 	public void test() {
-		//OpenDashBoard odb = new OpenDashBoard();
-		ApplicationContext context = new ClassPathXmlApplicationContext(
-				"applicationContext-odbCore.xml");
-		 
-		
-		OpenDashBoard odbCore = (OpenDashBoard) context.getBean("OpenDashBoardCore");
-		try {
-			odbCore.subscriberLogin("admin", "admin");
-		} catch (InvalidAuthenticationException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+//		//OpenDashBoard odb = new OpenDashBoard();
+//		ApplicationContext context = new ClassPathXmlApplicationContext(
+//				"applicationContext-odbCore.xml");
+//		 
+//		
+//		OpenDashBoard odbCore = (OpenDashBoard) context.getBean("OpenDashBoardCore");
+//		try {
+//			odbCore.subscriberLogin("admin", "admin");
+//		} catch (InvalidAuthenticationException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
 	}
 
 }

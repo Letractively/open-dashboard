@@ -280,17 +280,19 @@ public class Dashboard implements EntryPoint {
 		return menu;
 	}
 
+	PushEventListener pushListener = null;
 	private Widget createChart(final DataSourceConfiguration dsConfig, String chartID,
 			int width, int height) {
 		// the panel that will hold the chart
 		final ContentPanel panel = new ContentPanel(GWT.<ContentPanelAppearance> create(FramedPanelAppearance.class));
+		
 		panel.setCollapsible(true);
 		new Draggable(panel);
 		new Resizable(panel);
 		panel.setLayoutData(HasHorizontalAlignment.ALIGN_LEFT);
 		panel.getElement().getStyle().setMargin(2, Unit.PX);
 		// set a header of the panel
-		panel.setHeadingText("Chart " + chartID);
+		panel.setHeadingText(dsConfig.getDsName());
 		panel.setPixelSize(width, height);
 		panel.setBodyBorder(true);
 		panel.setBodyStyleName("white-bg");
@@ -312,7 +314,8 @@ public class Dashboard implements EntryPoint {
 
 			panel.add(layout);
 			GWTPushContext pushContext = GWTPushContext.getInstance();
-			pushContext.addPushEventListener(new PushEventListener() {
+			
+			pushContext.addPushEventListener(pushListener = new PushEventListener() {
 				public void onPushEvent() {
 					dashboardService.getDataUpdate(dsConfig.getDsID(), "1", new AsyncCallback<DataVO>() {
 						public void onFailure(Throwable caught) {
