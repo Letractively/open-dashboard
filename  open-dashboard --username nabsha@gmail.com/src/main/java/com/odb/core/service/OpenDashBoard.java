@@ -5,6 +5,7 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -167,6 +168,7 @@ public class OpenDashBoard {
 			Long seriesNum = it.next();
 			dsSeries.setSeriesIndex(seriesNum);
 			dsSeries.setSeriesIndexSeqVal(userData.get(seriesNum));
+			dsSeries.setDateTime(new Timestamp(System.currentTimeMillis()));
 			odbDAO.addSeriesData(dsSeries);
 		}
 		publish(dsID);

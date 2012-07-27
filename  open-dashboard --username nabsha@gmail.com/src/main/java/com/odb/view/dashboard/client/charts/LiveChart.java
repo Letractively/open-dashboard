@@ -77,6 +77,7 @@ public class LiveChart extends ODBChart {
 
 	private int seriesCount;
 
+	private ArrayList<LiveChartVO> initialDataList = null;
 	/**
 	 * Instantiates a new live chart. if a parameter is null, the default
 	 * parameter specified.
@@ -90,7 +91,7 @@ public class LiveChart extends ODBChart {
 	 * @param variableName
 	 *            the variable name
 	 */
-	public LiveChart(Long timeAxisFrequency, Integer numAxisMin, Integer numAxisMax, String variableName, int seriesCount) {
+	public LiveChart(Long timeAxisFrequency, Integer numAxisMin, Integer numAxisMax, String variableName, int seriesCount,ArrayList<DataVO> dataList) {
 		if (timeAxisFrequency != null)
 			this.timeAxisFrequency = timeAxisFrequency;
 		if (numAxisMin != null)
@@ -101,6 +102,16 @@ public class LiveChart extends ODBChart {
 			this.variableName = variableName;
 		this.seriesCount = seriesCount;
 		chart = new Chart<LiveChartVO>();
+		initialDataList = new ArrayList<LiveChartVO>();
+		//this.dataList = (ArrayList<LiveChartVO>)dataList;
+		Date dt = new Date();
+		for (DataVO d : dataList) {
+			initialDataList.add((LiveChartVO) d);
+		}
+		while(initialDataList.size() < 50) {
+			initialDataList.add(new LiveChartVO(new Date(initialDataList.get(0).getDate().getTime() - timeAxisFrequency), 0, 0, 0));
+			
+		}
 	}
 
 	/*
@@ -115,6 +126,14 @@ public class LiveChart extends ODBChart {
 		chart.setChartShadow(true);
 		chart.setAnimated(true);
 		store = new ListStore<LiveChartVO>(siteAccess.nameKey());
+//		Date date = startDate;
+		// now set the init data
+		for (int i = initialDataList.size()-1;i >=0; i--) {
+			store.add(new LiveChartVO(initialDataList.get(i).getDate(), initialDataList.get(i).getVariable(), initialDataList.get(i).getVariable2(), initialDataList.get(i).getVariable3()));
+//			date = CalendarUtil.copyDate(date);
+//			date.setTime(date.getTime() + timeAxisFrequency);
+		}
+		chart.setStore(store);
 
 		// init numeric numericAxis
 		numericAxis = new NumericAxis<LiveChartVO>();
@@ -133,10 +152,10 @@ public class LiveChart extends ODBChart {
 		Date endDate = new Date();
 		timeAxis = new TimeAxis<LiveChartVO>();
 		timeAxis.setField(siteAccess.date());
-		timeAxis.setEndDate(endDate);
-		Date startDate = CalendarUtil.copyDate(endDate);
-		startDate.setTime(endDate.getTime() - (timeAxisFrequency * 7));
-		timeAxis.setStartDate(startDate);
+		timeAxis.setEndDate(initialDataList.get(initialDataList.size()-1).getDate());
+//		Date startDate = CalendarUtil.copyDate(endDate);
+//		startDate.setTime(endDate.getTime() - (timeAxisFrequency * 7));
+		timeAxis.setStartDate(initialDataList.get(0).getDate());
 		timeAxis.setLabelProvider(new LabelProvider<Date>() {
 			public String getLabel(Date item) {
 				return timeFormat.format(item);
@@ -144,14 +163,6 @@ public class LiveChart extends ODBChart {
 		});
 		chart.addAxis(timeAxis);
 
-		Date date = startDate;
-		// now set the init data
-		for (int i = 0; i < 50; i++) {
-			store.add(new LiveChartVO(date, 0, 0, 0));
-			date = CalendarUtil.copyDate(date);
-			date.setTime(date.getTime() + timeAxisFrequency);
-		}
-		chart.setStore(store);
 
 		for (int i = 0; i < seriesCount; i++) {
 			ValueProvider<LiveChartVO, Double> vp = null;
@@ -309,12 +320,14 @@ public class LiveChart extends ODBChart {
 			errorLabel.setText("The Data is getting beck to normal...");
 		}
 		// reset the start and end time with the new values
-		int timeDiff = (int) (newDate.getTime() - endDate.getTime());
-		startDate.setTime(startDate.getTime() + timeDiff);
-		endDate.setTime(endDate.getTime() + timeDiff);
+//		int timeDiff = (int) (newDate.getTime() - endDate.getTime());
+		initialDataList.add(liveChartData);
+		initialDataList.remove(0);
+		//startDate.setTime(.getTime());
+//		endDate.setTime(endDate.getTime() + timeDiff);
 		chart.getStore().add(liveChartData);
-		//timeAxis.setStartDate(startDate);
-		timeAxis.setEndDate(endDate);
+		timeAxis.setStartDate(initialDataList.get(0).getDate());
+		timeAxis.setEndDate(initialDataList.get(initialDataList.size()-1).getDate());
 		// now redrawChart
 		chart.redrawChart();
 	}

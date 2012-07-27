@@ -22,6 +22,7 @@ public class DataSourceSeriesRowMapper implements RowMapper<DataSourceSeries> {
 		dsSeries.setSeriesIndex(rs.getLong("DATASOURCE_SERIES_INDEX"));
 		dsSeries.setSeriesIndexSeq(rs.getLong("DATASOURCE_SERIES_INDEX_SEQ"));
 		dsSeries.setSeriesIndexSeqVal(rs.getDouble("DATASOURCE_SERIES_IDX_SEQ_VAL"));
+		dsSeries.setDateTime(rs.getTimestamp("DATETIME"));
 		return dsSeries;
 	}
 

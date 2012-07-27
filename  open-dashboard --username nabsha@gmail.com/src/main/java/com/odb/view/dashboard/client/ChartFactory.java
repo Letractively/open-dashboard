@@ -38,14 +38,14 @@ public class ChartFactory {
 	 * 
 	 * @see ODBChart
 	 */
-	public static ODBChart getChart(DataSourceConfiguration dsConfig) throws ChartSettingsNotValidException{
+	public static ODBChart getChart(DataSourceConfiguration dsConfig,ArrayList<DataVO> dataList) throws ChartSettingsNotValidException{
 		//ODBChart chart = null;
 		//SubscriberDataSource subscriberDataSource = (SubscriberDataSource) viewSettings.viewConfigMap.get("subscriberDataSource_"+viewConfig.getViewLocationID());
 		//DataSourceInfo dataSourceInfo = (DataSourceInfo) viewSettings.viewConfigMap.get("dataSourceInfo_"+viewConfig.getViewLocationID());
 		@SuppressWarnings("unchecked")
 		//ArrayList<DataSourceAxisInfo> dataSourceAxisInfoList = (ArrayList<DataSourceAxisInfo>) viewSettings.viewConfigMap.get("dataSourceAxisInfoList_"+viewConfig.getViewLocationID());
 		//Integer graphID = Integer.valueOf(subscriberDataSource.getGraphID());
-		ODBChart chart = constructLiveChart(dsConfig);
+		ODBChart chart = constructLiveChart(dsConfig,dataList);
 		return chart;
 	}
 	
@@ -57,8 +57,9 @@ public class ChartFactory {
 	 * @return the mobily chart
 	 * @throws ChartSettingsNotValidException the chart settings not valid exception
 	 */
-	private static ODBChart constructLiveChart(DataSourceConfiguration dsConfig) throws ChartSettingsNotValidException{
+	private static ODBChart constructLiveChart(DataSourceConfiguration dsConfig,ArrayList<DataVO> dataList) throws ChartSettingsNotValidException{
 		AxisInfo dataSourceAxisInfo = null;
+		LiveChart liveChart = null;
 		Integer min, max, minIndex, maxIndex;
 		try {
 			for (AxisInfo dsai : dsConfig.getXsInfo()) {
@@ -72,6 +73,7 @@ public class ChartFactory {
 		} catch (Exception e) {
 			throw new ChartSettingsNotValidException("The data Source Axis Setting is not valied for Live Chart, please contact your admin");
 		}
-		return new LiveChart(dsConfig.getDsTimeoutInterval(), min, max, dataSourceAxisInfo.getDataSourceAxisName(), dsConfig.getSeriesCount());
+		liveChart =new LiveChart(dsConfig.getDsTimeoutInterval(), min, max, dataSourceAxisInfo.getDataSourceAxisName(), dsConfig.getSeriesCount(),dataList);
+		return liveChart; 
 	}
 }

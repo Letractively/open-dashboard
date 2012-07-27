@@ -12,7 +12,7 @@ import com.odb.view.dashboard.client.dto.ViewSettings;
 
 public class DashboardServiceAsyncImpl implements DashboardServiceAsync {
 
-	public void getDataUpdate(String dataSourceId, String graphID, AsyncCallback<DataVO> callback) {
+	public void getDataUpdate(String dataSourceId, String graphID, int seriesCount, int seriesSetCount, AsyncCallback<ArrayList<DataVO>> callback) {
 		// TODO Auto-generated method stub
 
 	}

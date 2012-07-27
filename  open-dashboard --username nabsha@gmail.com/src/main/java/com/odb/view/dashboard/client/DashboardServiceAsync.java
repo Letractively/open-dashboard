@@ -23,7 +23,7 @@ public interface DashboardServiceAsync {
 	 * @param callback the callback
 	 * @return the data update
 	 */
-	void getDataUpdate(String dataSourceId, String graphID, AsyncCallback<DataVO> callback);
+	void getDataUpdate(String dataSourceId, String graphID, int seriesCount, int seriesSetCount, AsyncCallback<ArrayList<DataVO>> callback);
 
 	/**
 	 * Gets the current view settings.

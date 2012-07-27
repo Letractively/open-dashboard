@@ -1,5 +1,7 @@
 package com.odb.core.dao.dto;
 
+import java.sql.Timestamp;
+
 /**
  * The Class DataSourceSeries.
  * 
@@ -10,6 +12,8 @@ public class DataSourceSeries {
 	/** The data source id. */
 	private String dataSourceID;
 	
+    private Timestamp dateTime;
+    
 	/** The series index. */
 	private long seriesIndex;
 	
@@ -89,5 +93,13 @@ public class DataSourceSeries {
 	 */
 	public void setSeriesIndex(long seriesIndex) {
 		this.seriesIndex = seriesIndex;
+	}
+
+	public Timestamp getDateTime() {
+		return dateTime;
+	}
+
+	public void setDateTime(Timestamp dateTime) {
+		this.dateTime = dateTime;
 	}
 }

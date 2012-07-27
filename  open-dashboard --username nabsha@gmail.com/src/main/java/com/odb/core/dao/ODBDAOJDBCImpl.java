@@ -1,6 +1,7 @@
 package com.odb.core.dao;
 
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -122,9 +123,9 @@ public class ODBDAOJDBCImpl implements ODBDAO {
 	 * @see com.odb.core.dao.ODBDAO#addSeriesData(com.odb.core.DataSourceSeries)
 	 */
 	public void addSeriesData(DataSourceSeries dsSeries) throws SQLException {
-		String sql = "INSERT INTO ODB_DATASOURCE_DATASERIES(DATASOURCE_ID, DATASOURCE_SERIES_INDEX, DATASOURCE_SERIES_IDX_SEQ_VAL) VALUES(?,?,?)";
+		String sql = "INSERT INTO ODB_DATASOURCE_DATASERIES(DATASOURCE_ID, DATASOURCE_SERIES_INDEX, DATASOURCE_SERIES_IDX_SEQ_VAL, DATETIME) VALUES(?,?,?,?)";
 
-		jdbcTemp.getJdbcOperations().update(sql, new Object[] { dsSeries.getDataSourceID(), dsSeries.getSeriesIndex(), dsSeries.getSeriesIndexSeqVal() });
+		jdbcTemp.getJdbcOperations().update(sql, new Object[] { dsSeries.getDataSourceID(), dsSeries.getSeriesIndex(), dsSeries.getSeriesIndexSeqVal(), dsSeries.getDateTime() });
 	}
 
 	/*
@@ -244,7 +245,7 @@ public class ODBDAOJDBCImpl implements ODBDAO {
 		// "SELECT * FROM ODB_DATASOURCE_DATASERIES WHERE DATASOURCE_ID = ? ORDER BY DATASOURCE_SERIES_INDEX_SEQ DESC AND ROWNUM < "+rowNum;
 		String sql = "SELECT * FROM ODB_DATASOURCE_DATASERIES WHERE DATASOURCE_ID = ? ORDER BY DATASOURCE_SERIES_INDEX_SEQ DESC LIMIT 0," + rowNum;
 		List<DataSourceSeries> latestData = jdbcTemp.getJdbcOperations().query(sql, new Object[] { dsID }, new DataSourceSeriesRowMapper());
-		log.debug("ArrayList<DataSourceSeries>" + latestData);
+		log.debug("ArrayList<DataSourceSeries>=" + latestData);
 		return latestData;
 	}
 

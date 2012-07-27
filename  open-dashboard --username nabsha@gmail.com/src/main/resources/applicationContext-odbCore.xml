@@ -10,17 +10,6 @@
         http://www.springframework.org/schema/context/spring-context-3.0.xsd"
 >
 
-	<!-- <bean id="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource"> -->
-	<!-- <property name="driverClass" value="oracle.jdbc.driver.OracleDriver"/> -->
-	<!-- <property name="jdbcUrl" value="jdbc:oracle:thin:@10.14.11.184:1522:emadev"/> -->
-	<!-- <property name="user" value="cdfdba"/> -->
-	<!-- <property name="password" value="cdfdba"/> -->
-	<!-- <property name="initialPoolSize" value="3"/> -->
-	<!-- <property name="minPoolSize" value="3"/> -->
-	<!-- <property name="acquireIncrement" value="3"/> -->
-	<!-- <property name="maxPoolSize" value="15"/> -->
-	<!-- </bean> -->
-
 	<bean
 		id="dataSource"
 		class="com.mchange.v2.c3p0.ComboPooledDataSource"
