@@ -110,7 +110,6 @@ public class LiveChart extends ODBChart {
 		}
 		while(initialDataList.size() < 50) {
 			initialDataList.add(new LiveChartVO(new Date(initialDataList.get(0).getDate().getTime() - timeAxisFrequency), 0, 0, 0));
-			
 		}
 	}
 
@@ -152,10 +151,10 @@ public class LiveChart extends ODBChart {
 		Date endDate = new Date();
 		timeAxis = new TimeAxis<LiveChartVO>();
 		timeAxis.setField(siteAccess.date());
-		timeAxis.setEndDate(initialDataList.get(initialDataList.size()-1).getDate());
+		timeAxis.setEndDate(initialDataList.get(0).getDate());
 //		Date startDate = CalendarUtil.copyDate(endDate);
 //		startDate.setTime(endDate.getTime() - (timeAxisFrequency * 7));
-		timeAxis.setStartDate(initialDataList.get(0).getDate());
+		timeAxis.setStartDate(initialDataList.get(initialDataList.size()-1).getDate());
 		timeAxis.setLabelProvider(new LabelProvider<Date>() {
 			public String getLabel(Date item) {
 				return timeFormat.format(item);
@@ -321,13 +320,14 @@ public class LiveChart extends ODBChart {
 		}
 		// reset the start and end time with the new values
 //		int timeDiff = (int) (newDate.getTime() - endDate.getTime());
-		initialDataList.add(liveChartData);
-		initialDataList.remove(0);
+//		initialDataList.add(liveChartData);
+//		initialDataList.remove(0);
+		chart.getStore().remove(0);
 		//startDate.setTime(.getTime());
 //		endDate.setTime(endDate.getTime() + timeDiff);
 		chart.getStore().add(liveChartData);
-		timeAxis.setStartDate(initialDataList.get(0).getDate());
-		timeAxis.setEndDate(initialDataList.get(initialDataList.size()-1).getDate());
+		timeAxis.setStartDate(chart.getStore().get(0).getDate());
+		timeAxis.setEndDate(chart.getStore().get(chart.getStore().size()-1).getDate());
 		// now redrawChart
 		chart.redrawChart();
 	}

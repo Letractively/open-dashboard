@@ -79,17 +79,17 @@ public class DashboardServiceImpl extends RemoteServiceServlet implements Dashbo
 			LiveChartVO lc = null;
 			switch (seriesCount) {
 			case 1:
-				lc = new LiveChartVO(new Date(), series.get(i).getSeriesIndexSeqVal(), 0, 0);
+				lc = new LiveChartVO(series.get(i).getDateTime(), series.get(i).getSeriesIndexSeqVal(), 0, 0);
 				break;
 			case 2:
-				lc = new LiveChartVO(new Date(), series.get(i).getSeriesIndexSeqVal(), series.get(i + 1).getSeriesIndexSeqVal(), 0);
+				lc = new LiveChartVO(series.get(i).getDateTime(), series.get(i).getSeriesIndexSeqVal(), series.get(i + 1).getSeriesIndexSeqVal(), 0);
 				break;
 			case 3:
-				lc = new LiveChartVO(new Date(), series.get(i).getSeriesIndexSeqVal(), series.get(i + 1).getSeriesIndexSeqVal(), series.get(i + 2)
+				lc = new LiveChartVO(series.get(i).getDateTime(), series.get(i).getSeriesIndexSeqVal(), series.get(i + 1).getSeriesIndexSeqVal(), series.get(i + 2)
 						.getSeriesIndexSeqVal());
 				break;
 			default:
-				lc = new LiveChartVO(new Date(), series.get(i).getSeriesIndexSeqVal(), 0, 0);
+				lc = new LiveChartVO(series.get(i).getDateTime(), series.get(i).getSeriesIndexSeqVal(), 0, 0);
 			}
 			dataVOList.add(lc);
 		}
