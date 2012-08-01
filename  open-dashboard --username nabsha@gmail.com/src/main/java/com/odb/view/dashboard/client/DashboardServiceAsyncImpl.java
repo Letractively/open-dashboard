@@ -12,10 +12,6 @@ import com.odb.view.dashboard.client.dto.ViewSettings;
 
 public class DashboardServiceAsyncImpl implements DashboardServiceAsync {
 
-	public void getDataUpdate(String dataSourceId, String graphID, int seriesCount, int seriesSetCount, AsyncCallback<ArrayList<DataVO>> callback) {
-		// TODO Auto-generated method stub
-
-	}
 
 //	public void getCurrentViewSettings(AsyncCallback<ViewSettings> callback) {
 //		// TODO Auto-generated method stub
@@ -37,6 +33,11 @@ public class DashboardServiceAsyncImpl implements DashboardServiceAsync {
 	}
 
 	public void getCurrentSubscriptions(AsyncCallback<ArrayList<DataSourceConfiguration>> asyncCallback) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void getDataUpdate(String dataSourceId, String graphID, int seriesCount, int seriesSetCount, AsyncCallback<ArrayList<DataVO>> callback) {
 		// TODO Auto-generated method stub
 		
 	}

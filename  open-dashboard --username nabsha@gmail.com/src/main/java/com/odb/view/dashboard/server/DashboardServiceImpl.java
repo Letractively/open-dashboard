@@ -25,6 +25,7 @@ import com.odb.core.service.DataSourceConfiguration;
 import com.odb.core.service.OpenDashBoard;
 import com.odb.view.dashboard.client.DashboardService;
 import com.odb.view.dashboard.client.DataVO;
+import com.odb.view.dashboard.client.TimeSeriesDataVO;
 import com.odb.view.dashboard.client.dto.DataSourceAxisInfo;
 import com.odb.view.dashboard.client.dto.LiveChartVO;
 import com.odb.view.dashboard.client.dto.ViewConfig;
@@ -71,29 +72,34 @@ public class DashboardServiceImpl extends RemoteServiceServlet implements Dashbo
 	 * String, java.lang.String)
 	 */
 	public ArrayList<DataVO> getDataUpdate(String dataSourceId, String graphID, int seriesCount, int seriesSetCount) throws GraphNotAvailableException {
-		ArrayList<DataVO> dataVOList = new ArrayList<DataVO>();
+		ArrayList<DataVO> dataSetList = new ArrayList<DataVO>();
 		int rowNum = seriesCount * seriesSetCount;
 
 		List<DataSourceSeries> series = odbCore.getLatestSeriesData(dataSourceId, rowNum);
 		for (int i = 0; i < series.size(); i += seriesCount) {
-			LiveChartVO lc = null;
-			switch (seriesCount) {
-			case 1:
-				lc = new LiveChartVO(series.get(i).getDateTime(), series.get(i).getSeriesIndexSeqVal(), 0, 0);
-				break;
-			case 2:
-				lc = new LiveChartVO(series.get(i).getDateTime(), series.get(i).getSeriesIndexSeqVal(), series.get(i + 1).getSeriesIndexSeqVal(), 0);
-				break;
-			case 3:
-				lc = new LiveChartVO(series.get(i).getDateTime(), series.get(i).getSeriesIndexSeqVal(), series.get(i + 1).getSeriesIndexSeqVal(), series.get(i + 2)
-						.getSeriesIndexSeqVal());
-				break;
-			default:
-				lc = new LiveChartVO(series.get(i).getDateTime(), series.get(i).getSeriesIndexSeqVal(), 0, 0);
+			TimeSeriesDataVO dataSet = new TimeSeriesDataVO(series.get(i).getDateTime());
+			for (int j = 0; j < seriesCount; j++) {
+				int idx = i+j;
+				dataSet.put(new Long(series.get(idx).getSeriesIndex()).toString(), series.get(idx).getSeriesIndexSeqVal());
 			}
-			dataVOList.add(lc);
+//			LiveChartVO lc = null;
+//			switch (seriesCount) {
+//			case 1:
+//				lc = new LiveChartVO(series.get(i).getDateTime(), series.get(i).getSeriesIndexSeqVal(), 0, 0);
+//				break;
+//			case 2:
+//				lc = new LiveChartVO(series.get(i).getDateTime(), series.get(i).getSeriesIndexSeqVal(), series.get(i + 1).getSeriesIndexSeqVal(), 0);
+//				break;
+//			case 3:
+//				lc = new LiveChartVO(series.get(i).getDateTime(), series.get(i).getSeriesIndexSeqVal(), series.get(i + 1).getSeriesIndexSeqVal(), series.get(i + 2)
+//						.getSeriesIndexSeqVal());
+//				break;
+//			default:
+//				lc = new LiveChartVO(series.get(i).getDateTime(), series.get(i).getSeriesIndexSeqVal(), 0, 0);
+//			}
+			dataSetList.add(dataSet);
 		}
-		return dataVOList;
+		return dataSetList;
 		// throw new GraphNotAvailableException();
 	}
 

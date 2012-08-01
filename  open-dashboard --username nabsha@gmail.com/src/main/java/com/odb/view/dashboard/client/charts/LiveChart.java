@@ -122,7 +122,7 @@ public class LiveChart extends ODBChart {
 	public Widget asWidget() {
 		// make LiveChartVO accessible to GWT
 		siteAccess = GWT.create(LiveChartVO.LiveCharPropertyAccess.class);
-		chart.setChartShadow(true);
+//		chart.setChartShadow(true);
 		chart.setAnimated(true);
 		store = new ListStore<LiveChartVO>(siteAccess.nameKey());
 //		Date date = startDate;

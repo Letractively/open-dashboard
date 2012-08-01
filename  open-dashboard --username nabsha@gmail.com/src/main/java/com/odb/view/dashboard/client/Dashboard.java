@@ -49,10 +49,11 @@ import com.odb.view.dashboard.client.dto.ViewConfig;
 import com.odb.view.dashboard.client.dto.ViewSettings;
 import com.odb.view.dashboard.client.exceptions.ChartSettingsNotValidException;
 import com.sencha.gxt.fx.client.Draggable;
-import com.sencha.gxt.fx.client.Resizable;
-import com.sencha.gxt.theme.base.client.panel.FramedPanelAppearance;
+import com.sencha.gxt.widget.core.client.Resizable;
 import com.sencha.gxt.widget.core.client.ContentPanel;
 import com.sencha.gxt.widget.core.client.ContentPanel.ContentPanelAppearance;
+import com.sencha.gxt.widget.core.client.FramedPanel;
+import com.sencha.gxt.widget.core.client.Resizable.Dir;
 import com.sencha.gxt.widget.core.client.container.VerticalLayoutContainer;
 import com.sencha.gxt.widget.core.client.container.VerticalLayoutContainer.VerticalLayoutData;
 
@@ -90,37 +91,14 @@ public class Dashboard implements EntryPoint {
 	/** The date format. */
 	private DateTimeFormat dateFormat = DateTimeFormat.getFormat("dd/MM/yyyy h:m:s a");
 
+	private DebugWindow dbg = DebugWindow.getInstance();
 	/*
 	 * (non-Javadoc)
 	 * 
 	 * @see com.google.gwt.core.client.EntryPoint#onModuleLoad()
 	 */
-	private static final TextArea debugLog = new TextArea();
 
-	private void debug(String msg) {
-		debugLog.setText(msg + "\n" + debugLog.getText());
-	}
 
-	private Widget setupDebug() {
-		// debugLog.setCharacterWidth(20);
-		final ContentPanel panel = new ContentPanel(GWT.<ContentPanelAppearance> create(FramedPanelAppearance.class));
-		panel.setCollapsible(true);
-		new Resizable(panel);
-
-		panel.getElement().getStyle().setMargin(2, Unit.PX);
-		// set a header of the panel
-		panel.setHeadingText("Debug Messages");
-		panel.setBodyBorder(true);
-		panel.setBodyStyleName("white-bg");
-		debugLog.setVisibleLines(10);
-		debugLog.setWidth("100%");
-		debugLog.setHeight("10%");
-		// debugLog.setVisibleLines(40);
-		debugLog.setReadOnly(true);
-		ScrollPanel debugScrollable = new ScrollPanel(debugLog);
-		panel.add(debugScrollable);
-		return debugScrollable;
-	}
 
 	// Create a command that will execute on menu item selection
 	Command menuCommand = new Command() {
@@ -281,11 +259,11 @@ public class Dashboard implements EntryPoint {
 	PushEventListener pushListener = null;
 
 	private Widget createChart(final DataSourceConfiguration dsConfig, final int width, final int height) {
-		final ContentPanel panel = new ContentPanel(GWT.<ContentPanelAppearance> create(FramedPanelAppearance.class));
+		final ContentPanel panel = new FramedPanel();
 		dashboardService.getDataUpdate(dsConfig.getDsID(), "1", dsConfig.getSeriesCount(), 50, new AsyncCallback<ArrayList<DataVO>>() {
 
 			public void onFailure(Throwable caught) {
-				// TODO Auto-generated method stub
+				dbg.debug("Failed in getDataUpdate " + caught);
 
 			}
 
@@ -293,8 +271,12 @@ public class Dashboard implements EntryPoint {
 				// the panel that will hold the chart
 
 				//panel.setCollapsible(true);
-				new Draggable(panel);
-				new Resizable(panel);
+				dbg.debug("seriesSetCount=" + result.size());
+
+				new Draggable(panel, panel.getHeader()).setUseProxy(false);
+				final Resizable resize = new Resizable(panel, Dir.E, Dir.SE, Dir.S);
+				resize.setMinHeight(400);
+				resize.setMinWidth(400);
 				panel.setLayoutData(HasHorizontalAlignment.ALIGN_LEFT);
 				panel.getElement().getStyle().setMargin(2, Unit.PX);
 				// set a header of the panel
@@ -326,15 +308,16 @@ public class Dashboard implements EntryPoint {
 								public void onFailure(Throwable caught) {
 									errorLabel.setText("Error, could not get Data Update for Data Source: " + dsConfig.getDsName()
 											+ ". Please Contact System Support. ");
+									dbg.debug("Failed in getDataUpdate " + caught);
 								}
 
 								public void onSuccess(ArrayList<DataVO> result) {
 									chart.updateChartData(result.get(0), errorLabel);
 									flexTable.setText(1, 3, dateFormat.format(new Date()));
-									debug(dsConfig.getDsID() + " # " + ((com.odb.view.dashboard.client.dto.LiveChartVO) result.get(0)).getDate() + ":"
-											+ ((com.odb.view.dashboard.client.dto.LiveChartVO) result.get(0)).getVariable() + " | "
-											+ ((com.odb.view.dashboard.client.dto.LiveChartVO) result.get(0)).getVariable2() + " | "
-											+ ((com.odb.view.dashboard.client.dto.LiveChartVO) result.get(0)).getVariable3() + " | ");
+//									debug(dsConfig.getDsID() + " # " + ((com.odb.view.dashboard.client.dto.LiveChartVO) result.get(0)).getDate() + ":"
+//											+ ((com.odb.view.dashboard.client.dto.LiveChartVO) result.get(0)).getVariable() + " | "
+//											+ ((com.odb.view.dashboard.client.dto.LiveChartVO) result.get(0)).getVariable2() + " | "
+//											+ ((com.odb.view.dashboard.client.dto.LiveChartVO) result.get(0)).getVariable3() + " | ");
 								}
 							});
 						}
@@ -342,6 +325,7 @@ public class Dashboard implements EntryPoint {
 
 				} catch (ChartSettingsNotValidException e) {
 					errorLabel.setText(e.getMessage());
+					dbg.debug("Failed in createChart " + e);
 				}
 			}
 		});
@@ -411,13 +395,13 @@ public class Dashboard implements EntryPoint {
 		splitFlexTable.getFlexCellFormatter().setHorizontalAlignment(0, 0, HasHorizontalAlignment.ALIGN_LEFT);
 		splitFlexTable.getFlexCellFormatter().setHorizontalAlignment(1, 0, HasHorizontalAlignment.ALIGN_JUSTIFY);
 		splitFlexTable.getFlexCellFormatter().setHorizontalAlignment(2, 0, HasHorizontalAlignment.ALIGN_LEFT);
-		splitFlexTable.setWidget(2, 0, setupDebug());
+		splitFlexTable.setWidget(2, 0, dbg.asWidget());
 		RootPanel.get().add(splitFlexTable);
 
 		dashboardService.getCurrentSubscriptions(new AsyncCallback<ArrayList<DataSourceConfiguration>>() {
 
 			public void onFailure(Throwable caught) {
-				// TODO Auto-generated method stub
+				dbg.debug("Failed in getCurrentSubscriptions " + caught);
 
 			}
 
