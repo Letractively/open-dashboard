@@ -1,121 +1,169 @@
 <Publisher>
-	<publisherID>NASDAQ_1343039359953</publisherID>
-	<dataSources>
-		<DataSourceDetails>
-			<dataSourceID>NASDAQ_1343039359953_1343039360052</dataSourceID>
-			<dataConfig>
-				<dataSourceName>RandomDB</dataSourceName>
-				<timeoutInterval>1000</timeoutInterval>
-				<numberOfSeries>3</numberOfSeries>
-				<axisDetails>
-					<AxisDetail>
-						<axisName>Randomness</axisName>
-						<minima>0</minima>
-						<maxima>1000</maxima>
-					</AxisDetail>
-				</axisDetails>
-			</dataConfig>
-			<dataGen>
-				<jobFrequency>1000</jobFrequency>
-				<seriesJobs>
-					<SeriesJob>
-						<jobSourceType>SQL</jobSourceType>
-						<!--<job>SELECT round(rand()*1000)</job> -->
-						<job>select round(rand()*100) from odb_datasource_info limit 0,1
+  <publisherID>NASDAQ_1343039359953</publisherID>
+  <dataSources>
+    <DataSourceDetails>
+      <dataSourceID>NASDAQ_1343039359953_1343039360052</dataSourceID>
+      <dataConfig>
+        <dataSourceName>RandomDB</dataSourceName>
+        <timeoutInterval>1000</timeoutInterval>
+        <numberOfSeries>3</numberOfSeries>
+        <axisDetails>
+          <AxisDetail>
+            <axisName>Randomness</axisName>
+            <minima>0</minima>
+            <maxima>1000</maxima>
+          </AxisDetail>
+        </axisDetails>
+      </dataConfig>
+      <dataGen>
+        <jobFrequency>1000</jobFrequency>
+        <seriesJobs>
+          <SeriesJob>
+            <jobSourceType>SQL</jobSourceType>
+            <job>select mod(round(rand()*100),15)+35 from odb_datasource_info
+							limit 0,1
 						</job>
-						<jobAttributes>
-							<entry>
-								<string>username</string>
-								<string>SA</string>
-							</entry>
-							<entry>
-								<string>dbName</string>
-								<string></string>
-							</entry>
-							<entry>
-								<string>driver</string>
-								<string>org.hsqldb.jdbc.JDBCDriver</string>
-								<!-- <string>com.mysql.jdbc.Driver</string> -->
-								<!-- <string>oracle.jdbc.driver.OracleDriver</string> -->
-							</entry>
-							<entry>
-								<string>password</string>
-								<string></string>
-							</entry>
-							<entry>
-								<string>url</string>
-								<string>jdbc:hsqldb:hsql://localhost:9001/</string>
-								<!-- <string>jdbc:mysql://localhost:3306</string> -->
-								<!-- <string>jdbc:oracle:thin:@localhost:1530</string> -->
-							</entry>
-						</jobAttributes>
-					</SeriesJob>
-					<SeriesJob>
-						<jobSourceType>SQL</jobSourceType>
-						<!--<job>SELECT round(rand()*1000)</job> -->
-						<job>select round(rand()*100) from odb_datasource_info limit 0,1
+            <jobAttributes>
+              <entry>
+                <string>username</string>
+                <string>SA</string>
+              </entry>
+              <entry>
+                <string>dbName</string>
+                <string></string>
+              </entry>
+              <entry>
+                <string>driver</string>
+                <string>org.hsqldb.jdbc.JDBCDriver</string>
+              </entry>
+              <entry>
+                <string>password</string>
+                <string></string>
+              </entry>
+              <entry>
+                <string>url</string>
+                <string>jdbc:hsqldb:hsql://localhost:9001/</string>
+              </entry>
+            </jobAttributes>
+          </SeriesJob>
+          <SeriesJob>
+            <jobSourceType>SQL</jobSourceType>
+            <job>select mod(round(rand()*100),15)+100 from odb_datasource_info
+							limit 0,1
 						</job>
-						<jobAttributes>
-							<entry>
-								<string>username</string>
-								<string>SA</string>
-							</entry>
-							<entry>
-								<string>dbName</string>
-								<string></string>
-							</entry>
-							<entry>
-								<string>driver</string>
-								<string>org.hsqldb.jdbc.JDBCDriver</string>
-								<!-- <string>com.mysql.jdbc.Driver</string> -->
-								<!-- <string>oracle.jdbc.driver.OracleDriver</string> -->
-							</entry>
-							<entry>
-								<string>password</string>
-								<string></string>
-							</entry>
-							<entry>
-								<string>url</string>
-								<string>jdbc:hsqldb:hsql://localhost:9001/</string>
-								<!-- <string>jdbc:mysql://localhost:3306</string> -->
-								<!-- <string>jdbc:oracle:thin:@localhost:1530</string> -->
-							</entry>
-						</jobAttributes>
-					</SeriesJob>
-					<SeriesJob>
-						<jobSourceType>SQL</jobSourceType>
-						<!--<job>SELECT round(rand()*1000)</job> -->
-						<job>select round(rand()*100) from odb_datasource_info limit 0,1
+            <jobAttributes>
+              <entry>
+                <string>username</string>
+                <string>SA</string>
+              </entry>
+              <entry>
+                <string>dbName</string>
+                <string></string>
+              </entry>
+              <entry>
+                <string>driver</string>
+                <string>org.hsqldb.jdbc.JDBCDriver</string>
+              </entry>
+              <entry>
+                <string>password</string>
+                <string></string>
+              </entry>
+              <entry>
+                <string>url</string>
+                <string>jdbc:hsqldb:hsql://localhost:9001/</string>
+              </entry>
+            </jobAttributes>
+          </SeriesJob>
+          <SeriesJob>
+            <jobSourceType>SQL</jobSourceType>
+            <job>select mod(round(rand()*100),15)+200 from odb_datasource_info
+							limit 0,1
 						</job>
-						<jobAttributes>
-							<entry>
-								<string>username</string>
-								<string>SA</string>
-							</entry>
-							<entry>
-								<string>dbName</string>
-								<string></string>
-							</entry>
-							<entry>
-								<string>driver</string>
-								<string>org.hsqldb.jdbc.JDBCDriver</string>
-								<!-- <string>com.mysql.jdbc.Driver</string> -->
-								<!-- <string>oracle.jdbc.driver.OracleDriver</string> -->
-							</entry>
-							<entry>
-								<string>password</string>
-								<string></string>
-							</entry>
-							<entry>
-								<string>url</string>
-								<string>jdbc:hsqldb:hsql://localhost:9001/</string>
-								<!-- <string>jdbc:mysql://localhost:3306</string> -->
-								<!-- <string>jdbc:oracle:thin:@localhost:1530</string> -->
-							</entry>
-						</jobAttributes>
-					</SeriesJob>
-				</seriesJobs>
-			</dataGen>
-		</DataSourceDetails>
-	</dataSources>
+            <jobAttributes>
+              <entry>
+                <string>username</string>
+                <string>SA</string>
+              </entry>
+              <entry>
+                <string>dbName</string>
+                <string></string>
+              </entry>
+              <entry>
+                <string>driver</string>
+                <string>org.hsqldb.jdbc.JDBCDriver</string>
+              </entry>
+              <entry>
+                <string>password</string>
+                <string></string>
+              </entry>
+              <entry>
+                <string>url</string>
+                <string>jdbc:hsqldb:hsql://localhost:9001/</string>
+              </entry>
+            </jobAttributes>
+          </SeriesJob>
+        </seriesJobs>
+      </dataGen>
+    </DataSourceDetails>
+    <DataSourceDetails>
+      <dataSourceID>NASDAQ_1343039359953_1345481698130</dataSourceID>
+      <dataConfig>
+        <dataSourceName>CPU Stats</dataSourceName>
+        <timeoutInterval>100</timeoutInterval>
+        <numberOfSeries>4</numberOfSeries>
+        <axisDetails>
+          <AxisDetail>
+            <axisName>Idle Time</axisName>
+            <minima>0</minima>
+            <maxima>100</maxima>
+          </AxisDetail>
+        </axisDetails>
+      </dataConfig>
+      <dataGen>
+        <jobFrequency>100</jobFrequency>
+        <seriesJobs>
+          <SeriesJob>
+            <jobSourceType>sysmon</jobSourceType>
+            <job>idle</job>
+            <jobAttributes>
+              <entry>
+                <string>cpunum</string>
+                <string>1</string>
+              </entry>
+            </jobAttributes>
+          </SeriesJob>
+          <SeriesJob>
+            <jobSourceType>sysmon</jobSourceType>
+            <job>idle</job>
+            <jobAttributes>
+              <entry>
+                <string>cpunum</string>
+                <string>2</string>
+              </entry>
+            </jobAttributes>
+          </SeriesJob>
+          <SeriesJob>
+            <jobSourceType>sysmon</jobSourceType>
+            <job>idle</job>
+            <jobAttributes>
+              <entry>
+                <string>cpunum</string>
+                <string>3</string>
+              </entry>
+            </jobAttributes>
+          </SeriesJob>
+          <SeriesJob>
+            <jobSourceType>sysmon</jobSourceType>
+            <job>idle</job>
+            <jobAttributes>
+              <entry>
+                <string>cpunum</string>
+                <string>4</string>
+              </entry>
+            </jobAttributes>
+          </SeriesJob>
+        </seriesJobs>
+      </dataGen>
+    </DataSourceDetails>
+  </dataSources>
 </Publisher>

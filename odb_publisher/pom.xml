@@ -84,7 +84,8 @@
 			<artifactId>hsqldb</artifactId>
 			<version>2.2.8</version>
 		</dependency>
-		
+
+
 	</dependencies>
 	<build>
 		<!-- Generate compiled stuff in the folder used for developing mode -->
@@ -116,4 +117,5 @@
 			</plugins>
 		</pluginManagement>
 	</build>
+
 </project>
