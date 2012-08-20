@@ -10,6 +10,8 @@ import org.icepush.gwt.client.PushEventListener;
 
 import com.google.gwt.editor.client.Editor;
 import com.google.gwt.editor.client.EditorError;
+import com.google.gwt.event.logical.shared.ValueChangeEvent;
+import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.regexp.shared.RegExp;
 import com.google.gwt.user.client.rpc.AsyncCallback;
@@ -36,6 +38,7 @@ import com.sencha.gxt.data.shared.LabelProvider;
 import com.sencha.gxt.data.shared.ListStore;
 import com.sencha.gxt.data.shared.ModelKeyProvider;
 import com.sencha.gxt.widget.core.client.button.TextButton;
+import com.sencha.gxt.widget.core.client.button.ToggleButton;
 import com.sencha.gxt.widget.core.client.container.VerticalLayoutContainer;
 import com.sencha.gxt.widget.core.client.container.VerticalLayoutContainer.VerticalLayoutData;
 import com.sencha.gxt.widget.core.client.event.SelectEvent;
@@ -70,7 +73,11 @@ public class DynamicLineChart extends ODBChart {
 		}
 
 	}
-
+	
+	public void redraw() {
+		chart.redrawChart();
+	}
+	
 	public Widget asWidget() {
 		final ListStore<LineSeries<TimeSeriesDataVO>> fieldStore = new ListStore<LineSeries<TimeSeriesDataVO>>(
 				new ModelKeyProvider<LineSeries<TimeSeriesDataVO>>() {
@@ -125,96 +132,8 @@ public class DynamicLineChart extends ODBChart {
 		legend.setItemHiding(true);
 		chart.setLegend(legend);
 
-		TextButton regenerate = new TextButton("Reload Data");
-		regenerate.addSelectHandler(new SelectHandler() {
-			public void onSelect(SelectEvent event) {
-				for (int i = 0; i < store.size(); i++) {
-					TimeSeriesDataVO item = store.get(i);
-					for (String field : item.keySet()) {
-						item.put(field, Math.random() * 100);
-					}
-				}
-				chart.redrawChart();
-			}
-		});
-
-		final ComboBox<LineSeries<TimeSeriesDataVO>> box = new ComboBox<LineSeries<TimeSeriesDataVO>>(fieldStore,
-				new LabelProvider<LineSeries<TimeSeriesDataVO>>() {
-					public String getLabel(LineSeries<TimeSeriesDataVO> item) {
-						return item.getYField().getPath();
-					}
-				});
-
-		final TextField fieldInput = new TextField();
-		fieldInput.setValue("first");
-		fieldInput.setAllowBlank(false);
-		fieldInput.addValidator(new MaxLengthValidator(20));
-		final RegExp regex = RegExp.compile("\\s");
-		fieldInput.addValidator(new Validator<String>() {
-			public List<EditorError> validate(Editor<String> editor, String value) {
-				if (regex.test(value)) {
-					List<EditorError> errors = new ArrayList<EditorError>();
-					errors.add(new DefaultEditorError(editor, "Field name cannot contain spaces.", ""));
-					return errors;
-				}
-				return null;
-			}
-		});
-
-		TextButton add = new TextButton("Add");
-		add.addSelectHandler(new SelectHandler() {
-			public void onSelect(SelectEvent event) {
-				String field = fieldInput.getValue();
-				if (fieldInput.isCurrentValid() && field.length() > 0 && fieldStore.findModelWithKey(field) == null && fieldStore.size() < 10) {
-					for (int i = 0; i < store.size(); i++) {
-						TimeSeriesDataVO item = store.get(i);
-						item.put(field, Math.random() * 100);
-					}
-					LineSeries<TimeSeriesDataVO> series = createLine(field);
-					fieldStore.add(series);
-					axis.addField(series.getYField());
-					chart.addSeries(series);
-					chart.redrawChart();
-				}
-			}
-		});
-
-		TextButton remove = new TextButton("Remove");
-		remove.addSelectHandler(new SelectHandler() {
-			public void onSelect(SelectEvent event) {
-				String field = box.getText();
-				LineSeries<TimeSeriesDataVO> series = fieldStore.findModelWithKey(field);
-				if (field.length() > 0 && series != null && fieldStore.size() > 0) {
-					for (int i = 0; i < store.size(); i++) {
-						TimeSeriesDataVO item = store.get(i);
-						item.remove(field);
-					}
-					fieldStore.remove(series);
-					axis.removeField(series.getYField());
-					chart.removeSeries(series);
-					chart.redrawChart();
-				}
-				box.clear();
-			}
-		});
-
-		ToolBar toolBar = new ToolBar();
-		toolBar.add(regenerate);
-		toolBar.add(new SeparatorToolItem());
-		toolBar.add(add);
-		toolBar.add(fieldInput);
-		toolBar.add(new SeparatorToolItem());
-		toolBar.add(remove);
-		toolBar.add(box);
-
-		VerticalLayoutContainer layout = new VerticalLayoutContainer();
-
-		toolBar.setLayoutData(new VerticalLayoutData(1, -1));
-		layout.add(toolBar);
-
 		chart.setLayoutData(new VerticalLayoutData(1, 1));
-		layout.add(chart);
-		return layout;
+		return chart;
 	}
 
 	private LineSeries<TimeSeriesDataVO> createLine(String seriesName) {

@@ -24,6 +24,8 @@ public abstract class ODBChart {
 	 */
 	public abstract Widget asWidget(); 
 	
+	public abstract void redraw();
+	
 	/**
 	 * Update chart data.
 	 * 

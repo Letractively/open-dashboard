@@ -9,7 +9,6 @@ import java.util.List;
 import com.odb.core.service.AxisInfo;
 import com.odb.core.service.DataSourceConfiguration;
 import com.odb.view.dashboard.client.charts.DynamicLineChart;
-import com.odb.view.dashboard.client.charts.LiveChart;
 import com.odb.view.dashboard.client.charts.ODBChart;
 import com.odb.view.dashboard.client.dto.DataSourceAxisDetailInfo;
 import com.odb.view.dashboard.client.dto.DataSourceAxisInfo;
