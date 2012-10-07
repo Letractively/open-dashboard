@@ -1,3 +1,9 @@
+/*******************************************************************************
+ * Copyright (c) 2012, Nabeel Shaheen	
+ * All rights reserved.
+ * 
+ * Redistribution and use in source and binary forms, with or without modification, are permitted
+ ******************************************************************************/
 package com.odb.collector;
 
 import java.rmi.RemoteException;
@@ -54,12 +60,13 @@ public class InquiryServiceImpl implements InquiryService {
 	}
 
 	public PublisherInfo getPublisherInfo(String publisherID) throws RemoteException {
+		PublisherInfo pInfo = null;
 		try {
-			return odbCore.getPublisher(publisherID);
+			pInfo = odbCore.getPublisher(publisherID);
 		} catch (SQLException e) {
-			log.error("error while get PublisherID for publisherID: " + publisherID, e);
+			log.error("error while getPublisherInfo for publisherID: " + publisherID, e);
 		}
-		return null;
+		return pInfo;
 	}
 
 	public ArrayList<DataSourceConfiguration> getAllDataSourceByPublisherID(String publisherID) throws RemoteException {
@@ -67,18 +74,18 @@ public class InquiryServiceImpl implements InquiryService {
 		try {
 			ArrayList<DataSourceInfo> dsInfoList = odbCore.getAllDataSourceByPublisher(publisherID);
 			dsConfigList = new ArrayList<DataSourceConfiguration>();
-			
+
 			for (DataSourceInfo dsInfo : dsInfoList) {
 				DataSourceConfiguration dsConfig = new DataSourceConfiguration();
 				dsConfig = odbCore.getDataSourceConfigurationBy(dsInfo.getDataSourceID());
-				dsConfigList.add(dsConfig);				
+				dsConfigList.add(dsConfig);
 			}
 			return dsConfigList;
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
+
 		return null;
 	}
 }

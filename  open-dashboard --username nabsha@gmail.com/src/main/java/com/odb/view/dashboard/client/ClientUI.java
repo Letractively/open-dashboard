@@ -1,3 +1,9 @@
+/*******************************************************************************
+ * Copyright (c) 2012, Nabeel Shaheen	
+ * All rights reserved.
+ * 
+ * Redistribution and use in source and binary forms, with or without modification, are permitted
+ ******************************************************************************/
 package com.odb.view.dashboard.client;
 
 import java.util.ArrayList;
@@ -105,8 +111,7 @@ public class ClientUI {
 
 					public void onSuccess(DataSourceConfiguration result) {
 						addChart(result, 400,300);
-						
-
+						dashboardService.addSubscription(result.getDsID(), "1", null);
 					}
 				});
 
@@ -140,12 +145,6 @@ public class ClientUI {
 		return dialogBox;
 	}
 
-	/**
-	 * Create a dynamic tree that will add a random number of children to each
-	 * node as it is clicked.
-	 * 
-	 * @return the new tree
-	 */
 	private Tree createDynamicTree(ArrayList<PublisherInfo> pubInfoList) {
 		// Create a new tree
 		final Tree dynamicTree = new Tree();

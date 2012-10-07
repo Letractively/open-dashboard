@@ -1,3 +1,9 @@
+/*******************************************************************************
+ * Copyright (c) 2012, Nabeel Shaheen	
+ * All rights reserved.
+ * 
+ * Redistribution and use in source and binary forms, with or without modification, are permitted
+ ******************************************************************************/
 package com.odb.core.dao;
 
 import java.sql.SQLException;
@@ -10,6 +16,8 @@ import java.util.Map;
 import javax.sql.DataSource;
 
 import org.apache.log4j.Logger;
+import org.springframework.dao.IncorrectResultSizeDataAccessException;
+import org.springframework.jdbc.core.PreparedStatementSetter;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
@@ -29,6 +37,7 @@ import com.odb.core.dao.rowmappers.DataSourceAxisInfoRowMapper;
 import com.odb.core.dao.rowmappers.DataSourceInfoResultSetExtractor;
 import com.odb.core.dao.rowmappers.DataSourceInfoRowMapper;
 import com.odb.core.dao.rowmappers.DataSourceSeriesRowMapper;
+import com.odb.core.dao.rowmappers.PublisherInfoResultSetExtractor;
 import com.odb.core.dao.rowmappers.PublisherInfoRowMapper;
 import com.odb.core.dao.rowmappers.SubscriberDataSourceoResultSetExtractor;
 import com.odb.core.dao.rowmappers.SubscriberInfoResultSetExtractor;
@@ -82,8 +91,10 @@ public class ODBDAOJDBCImpl implements ODBDAO {
 		String sql = "INSERT INTO ODB_DATASOURCE_INFO(DATASOURCE_ID, PUBLISHER_ID, DATASOURCE_NAME, TIMEOUT_INTERVAL, NUM_OF_SERIES) VALUES(?,?,?,?,?)";
 
 		log.debug("DataSourceInfo" + dsInfo);
-		jdbcTemp.getJdbcOperations().update(sql,
-				new Object[] { dsInfo.getDataSourceID(), dsInfo.getPublisherID(), dsInfo.getDataSourceName(), dsInfo.getTimeoutInterval(), dsInfo.getSeriesCount() });
+		jdbcTemp.getJdbcOperations().update(
+				sql,
+				new Object[] { dsInfo.getDataSourceID(), dsInfo.getPublisherID(), dsInfo.getDataSourceName(), dsInfo.getTimeoutInterval(),
+						dsInfo.getSeriesCount() });
 	}
 
 	/*
@@ -125,7 +136,8 @@ public class ODBDAOJDBCImpl implements ODBDAO {
 	public void addSeriesData(DataSourceSeries dsSeries) throws SQLException {
 		String sql = "INSERT INTO ODB_DATASOURCE_DATASERIES(DATASOURCE_ID, DATASOURCE_SERIES_INDEX, DATASOURCE_SERIES_IDX_SEQ_VAL, DATETIME) VALUES(?,?,?,?)";
 
-		jdbcTemp.getJdbcOperations().update(sql, new Object[] { dsSeries.getDataSourceID(), dsSeries.getSeriesIndex(), dsSeries.getSeriesIndexSeqVal(), dsSeries.getDateTime() });
+		jdbcTemp.getJdbcOperations().update(sql,
+				new Object[] { dsSeries.getDataSourceID(), dsSeries.getSeriesIndex(), dsSeries.getSeriesIndexSeqVal(), dsSeries.getDateTime() });
 	}
 
 	/*
@@ -147,20 +159,13 @@ public class ODBDAOJDBCImpl implements ODBDAO {
 	 * @see com.odb.core.dao.ODBDAO#addSubscribeDataSource(com.odb.core.
 	 * SubscriberDataSource)
 	 */
-	public void addSubscribeDataSource(SubscriberDataSource subDS) throws SQLException {
+	public void addSubscribeDataSource(String subscriberID, String dsID, String graphID, String subDSID) throws SQLException {
 		String sql = "INSERT INTO ODB_SUB_DATASOURCES(SUBSCRIBER_ID, DATASOURCE_ID, GRAPH_ID, SUBSCRIBER_DATASOURCE_ID) VALUES(?,?,?,?)";
 
-		log.debug("SubscriberDataSource" + subDS);
 		jdbcTemp.getJdbcOperations().update(sql,
-				new Object[] { subDS.getSubscriberID(), subDS.getDataSourceID(), subDS.getGraphID(), subDS.getSubscriberDataSourceID() });
+				new Object[] { subscriberID, dsID, graphID, subDSID});
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.odb.core.dao.ODBDAO#addSubscriberView(com.odb.core.
-	 * SubscriberViewConfiguration)
-	 */
 	public void addSubscriberView(SubscriberViewConfiguration subViewCfg) throws SQLException {
 		String sql = "INSERT INTO ODB_SUB_VIEW_CONFIG(SUBSCRIBER_ID, VIEW_LOCATION_ID, SUBSCRIBER_DATASOURCE_ID) VALUES(?,?,?)";
 
@@ -169,24 +174,20 @@ public class ODBDAOJDBCImpl implements ODBDAO {
 				new Object[] { subViewCfg.getSubscriberID(), subViewCfg.getViewLocationID(), subViewCfg.getSubsriberDataSourceID() });
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.odb.core.dao.ODBDAO#getPublisherByID(java.lang.String)
-	 */
 	public PublisherInfo getPublisherByID(String pubID) throws SQLException {
-		String sql = "SELECT * FROM ODB_PUBLISHER_INFO WHERE PUBLISHER_ID=?";
-
-		PublisherInfo pInfo = (PublisherInfo) jdbcTemp.getJdbcOperations().queryForObject(sql, new Object[] { pubID }, new PublisherInfoRowMapper());
-		log.debug("PublisherInfo" + pInfo);
-		return pInfo;
+		ArrayList<PublisherInfo>  pInfo = null;
+		String sql = "SELECT PUBLISHER_ID, PUBLISHER_NAME FROM ODB_PUBLISHER_INFO WHERE PUBLISHER_ID=?";
+		//SqlParameterSource param = new MapSqlParameterSource("publisherID", pubID);
+		try {
+			//pInfo = jdbcTemp.query(sql, param, new PublisherInfoResultSetExtractor());
+			pInfo = (ArrayList<PublisherInfo> ) jdbcTemp.getJdbcOperations().query(sql, new Object[] {pubID} , new PublisherInfoRowMapper());
+		} catch (IncorrectResultSizeDataAccessException ex) {
+			log.info("Publisher " + pubID + " does not exist...");
+		}
+		return (pInfo.size()> 0)?pInfo.get(0):null;
+		
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.odb.core.dao.ODBDAO#getAllPublishers()
-	 */
 	public ArrayList<PublisherInfo> getAllPublishers() throws SQLException {
 		String sql = "SELECT * FROM ODB_PUBLISHER_INFO";
 
@@ -195,12 +196,6 @@ public class ODBDAOJDBCImpl implements ODBDAO {
 		return pubList;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.odb.core.dao.ODBDAO#getSubscriberDataSourceBy(java.lang.String,
-	 * java.lang.String)
-	 */
 	public ArrayList<DataSourceInfo> getAllDataSourceBySubscriberID(String subscriberId) {
 		String sql = "SELECT ODI.* FROM ODB_SUB_DATASOURCES SDS, ODB_DATASOURCE_INFO ODI WHERE SDS.SUBSCRIBER_ID=? AND SDS.DATASOURCE_ID=ODI.DATASOURCE_ID";
 		ArrayList<DataSourceInfo> subDSList = (ArrayList<DataSourceInfo>) jdbcTemp.getJdbcOperations().query(sql, new Object[] { subscriberId },
@@ -217,7 +212,8 @@ public class ODBDAOJDBCImpl implements ODBDAO {
 	 */
 	public ArrayList<DataSourceInfo> getAllDataSourceByPublisherID(String pubID) throws SQLException {
 		String sql = "SELECT * FROM ODB_DATASOURCE_INFO WHERE PUBLISHER_ID=?";
-		ArrayList<DataSourceInfo> pubDSList = (ArrayList<DataSourceInfo>) jdbcTemp.getJdbcOperations().query(sql, new Object[] { pubID }, new DataSourceInfoRowMapper());
+		ArrayList<DataSourceInfo> pubDSList = (ArrayList<DataSourceInfo>) jdbcTemp.getJdbcOperations().query(sql, new Object[] { pubID },
+				new DataSourceInfoRowMapper());
 		log.debug("ArrayList<DataSourceInfo>" + pubDSList);
 		return pubDSList;
 	}
@@ -230,7 +226,8 @@ public class ODBDAOJDBCImpl implements ODBDAO {
 	 */
 	public ArrayList<DataSourceSeries> getSeriesDataAllByDataSourceID(String dsID) {
 		String sql = "SELECT * FROM ODB_DATASOURCE_DATASERIES WHERE DATASOURCE_ID=?";
-		ArrayList<DataSourceSeries> dsSeriesList = (ArrayList<DataSourceSeries>) jdbcTemp.getJdbcOperations().query(sql, new Object[] { dsID }, new DataSourceSeriesRowMapper());
+		ArrayList<DataSourceSeries> dsSeriesList = (ArrayList<DataSourceSeries>) jdbcTemp.getJdbcOperations().query(sql, new Object[] { dsID },
+				new DataSourceSeriesRowMapper());
 		log.debug("ArrayList<DataSourceSeries>" + dsSeriesList);
 		return dsSeriesList;
 	}

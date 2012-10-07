@@ -42,13 +42,6 @@
 		<servlet-class>org.icepush.servlet.ICEpushServlet</servlet-class>
 		<load-on-startup>1</load-on-startup>
 	</servlet>
-	<servlet>
-		<description>
-		</description>
-		<display-name>InitDatabase</display-name>
-		<servlet-name>InitDatabase</servlet-name>
-		<servlet-class>com.odb.util.InitDatabase</servlet-class>
-	</servlet>
 	<servlet-mapping>
 		<servlet-name>icepush</servlet-name>
 		<url-pattern>*.icepush</url-pattern>

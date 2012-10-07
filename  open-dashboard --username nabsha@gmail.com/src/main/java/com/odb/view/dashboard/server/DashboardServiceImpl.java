@@ -1,3 +1,9 @@
+/*******************************************************************************
+ * Copyright (c) 2012, Nabeel Shaheen	
+ * All rights reserved.
+ * 
+ * Redistribution and use in source and binary forms, with or without modification, are permitted
+ ******************************************************************************/
 package com.odb.view.dashboard.server;
 
 import java.io.Serializable;
@@ -53,24 +59,12 @@ public class DashboardServiceImpl extends RemoteServiceServlet implements Dashbo
 	/** The odb core. */
 	OpenDashBoard odbCore;
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see javax.servlet.GenericServlet#init(javax.servlet.ServletConfig)
-	 */
 	public void init(javax.servlet.ServletConfig config) throws javax.servlet.ServletException {
 		super.init(config);
 		ApplicationContext context = WebApplicationContextUtils.getWebApplicationContext(config.getServletContext());
 		odbCore = (OpenDashBoard) context.getBean("OpenDashBoardCore");
 	};
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * com.mobily.dashboard.client.DashboardService#getDataUpdate(java.lang.
-	 * String, java.lang.String)
-	 */
 	public ArrayList<DataVO> getDataUpdate(String dataSourceId, String graphID, int seriesCount, int seriesSetCount) throws GraphNotAvailableException {
 		ArrayList<DataVO> dataSetList = new ArrayList<DataVO>();
 		int rowNum = seriesCount * seriesSetCount;
@@ -80,23 +74,8 @@ public class DashboardServiceImpl extends RemoteServiceServlet implements Dashbo
 			TimeSeriesDataVO dataSet = new TimeSeriesDataVO(series.get(i).getDateTime());
 			for (int j = 0; j < seriesCount; j++) {
 				int idx = i+j;
-				dataSet.put(new Long(series.get(idx).getSeriesIndex()).toString(), series.get(idx).getSeriesIndexSeqVal());
+				dataSet.put(series.get(idx).getSeriesIndex(), series.get(idx).getSeriesIndexSeqVal());
 			}
-//			LiveChartVO lc = null;
-//			switch (seriesCount) {
-//			case 1:
-//				lc = new LiveChartVO(series.get(i).getDateTime(), series.get(i).getSeriesIndexSeqVal(), 0, 0);
-//				break;
-//			case 2:
-//				lc = new LiveChartVO(series.get(i).getDateTime(), series.get(i).getSeriesIndexSeqVal(), series.get(i + 1).getSeriesIndexSeqVal(), 0);
-//				break;
-//			case 3:
-//				lc = new LiveChartVO(series.get(i).getDateTime(), series.get(i).getSeriesIndexSeqVal(), series.get(i + 1).getSeriesIndexSeqVal(), series.get(i + 2)
-//						.getSeriesIndexSeqVal());
-//				break;
-//			default:
-//				lc = new LiveChartVO(series.get(i).getDateTime(), series.get(i).getSeriesIndexSeqVal(), 0, 0);
-//			}
 			dataSetList.add(dataSet);
 		}
 		return dataSetList;
@@ -115,7 +94,6 @@ public class DashboardServiceImpl extends RemoteServiceServlet implements Dashbo
 		}
 
 		return dsConfig;
-
 	}
 
 	public ArrayList<DataSourceConfiguration> getCurrentSubscriptions() {
@@ -136,79 +114,6 @@ public class DashboardServiceImpl extends RemoteServiceServlet implements Dashbo
 
 		return dsConfigList;
 	}
-
-	// /*
-	// * (non-Javadoc)
-	// *
-	// * @see
-	// * com.mobily.dashboard.client.DashboardService#getCurrentViewSettings()
-	// */
-	// public ViewSettings getCurrentViewSettings() throws
-	// ViewSettingNotConsistentException {
-	// ViewSettings viewSettings = new ViewSettings();
-	// // getting Current subscriber info...
-	// SubscriberInfo subscriberInfo = (SubscriberInfo)
-	// getThreadLocalRequest().getSession().getAttribute("subscriberInfo");
-	// String subscriberID =
-	// Utilities.getClientSubscriberInfo(subscriberInfo).getSubscriberID();
-	// try {
-	// // getting system active ViewConfiguration
-	// List<ViewConfiguration> viewConfigurationList =
-	// odbCore.getViewConfigurationList();
-	// ArrayList<ViewConfig> clientViewConfigList = new
-	// ArrayList<ViewConfig>(viewConfigurationList.size());
-	// for (ViewConfiguration viewConfiguration : viewConfigurationList) {
-	// clientViewConfigList.add(Utilities.getClientViewConfig(viewConfiguration));
-	// }
-	// viewSettings.viewConfigList = clientViewConfigList;
-	// viewSettings.viewConfigMap = new java.util.HashMap<String,
-	// Serializable>();
-	// for (ViewConfig viewConfig : clientViewConfigList) {
-	// // getting SubscriberDataSource
-	// SubscriberDataSource subscriberDataSource =
-	// odbCore.getSubscriberDataSourceBy(subscriberInfo.getSubscriberID(),
-	// viewConfig.getViewLocationID());
-	// // adding SubscriberDataSource to map...
-	// viewSettings.viewConfigMap.put("subscriberDataSource_" +
-	// viewConfig.getViewLocationID(),
-	// Utilities.getClientSubscriberDataSource((subscriberDataSource)));
-	// // getting DataSourceInfo
-	// DataSourceInfo dataSourceInfo =
-	// odbCore.getDataSourceByDataSourceID(subscriberDataSource.getDataSourceID());
-	// // adding DataSource to map...
-	// viewSettings.viewConfigMap.put("dataSourceInfo_" +
-	// viewConfig.getViewLocationID(),
-	// Utilities.getClientDataSourceInfo((dataSourceInfo)));
-	// // getting DataSourceAxisInfo
-	// List<com.odb.core.dao.dto.DataSourceAxisInfo> dataSourceAxisInfoList =
-	// odbCore.getDataSourceAxisInfo(dataSourceInfo.getDataSourceID());
-	// ArrayList<DataSourceAxisInfo> clientDataSourceAxisInfoList = new
-	// ArrayList<DataSourceAxisInfo>(dataSourceAxisInfoList.size());
-	// for (com.odb.core.dao.dto.DataSourceAxisInfo dataSourceAxisInfo :
-	// dataSourceAxisInfoList) {
-	// // getting axis detail config
-	// List<DataSourceAxisDetailInfo> dataSourceAxisDetailInfoList =
-	// odbCore.getDataSourceAxisDetailInfoListBy(dataSourceAxisInfo
-	// .getDataSourceAxisID());
-	// clientDataSourceAxisInfoList.add(Utilities.getClientDataSourceAxisInfo(dataSourceAxisInfo,
-	// dataSourceAxisDetailInfoList));
-	// }
-	// viewSettings.viewConfigMap.put("dataSourceAxisInfoList_" +
-	// viewConfig.getViewLocationID(), clientDataSourceAxisInfoList);
-	// }
-	// } catch (SQLException e) {
-	// log.error("Error while getting ViewSettings for subscriber ID: " +
-	// subscriberInfo.getSubscriberID(), e);
-	// throw new
-	// ViewSettingNotConsistentException("Error while getting ViewSettings");
-	// } catch (DataAccessException e) {
-	// log.error("Error while getting ViewSettings for subscriber ID: " +
-	// subscriberInfo.getSubscriberID(), e);
-	// throw new
-	// ViewSettingNotConsistentException("Error while getting ViewSettings");
-	// }
-	// return viewSettings;
-	// }
 
 	public ArrayList<com.odb.view.dashboard.client.dto.PublisherInfo> getPublisherInfo() throws FetchDataSourceException {
 		ArrayList<com.odb.view.dashboard.client.dto.PublisherInfo> publisherInfoList = new ArrayList<com.odb.view.dashboard.client.dto.PublisherInfo>();
@@ -245,6 +150,11 @@ public class DashboardServiceImpl extends RemoteServiceServlet implements Dashbo
 			log.error("Fetching DataSourceInfo failed... ");
 		}
 		return dataSourceList;
+	}
+
+	public void addSubscription(String dsID, String graphID) {
+		SubscriberInfo subscriberInfo = (SubscriberInfo) getThreadLocalRequest().getSession().getAttribute("subscriberInfo");
+		odbCore.addSubscription(subscriberInfo.getSubscriberID(), dsID, graphID, subscriberInfo.getSubscriberID() + "_"+dsID);
 	}
 
 }

@@ -1,3 +1,9 @@
+/*******************************************************************************
+ * Copyright (c) 2012, Nabeel Shaheen	
+ * All rights reserved.
+ * 
+ * Redistribution and use in source and binary forms, with or without modification, are permitted
+ ******************************************************************************/
 package com.odb.view.dashboard.client;
 
 import java.io.Serializable;
@@ -38,4 +44,6 @@ public interface DashboardServiceAsync {
 	void getDataSourceAllDetails(String dataSourceID, AsyncCallback<DataSourceConfiguration> callback);
 
 	void getCurrentSubscriptions(AsyncCallback<ArrayList<DataSourceConfiguration>> asyncCallback);
+
+	void addSubscription(String dsID, String graphID, AsyncCallback callback);
 }

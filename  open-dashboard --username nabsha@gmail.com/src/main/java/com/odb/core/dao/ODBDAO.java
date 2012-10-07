@@ -1,3 +1,9 @@
+/*******************************************************************************
+ * Copyright (c) 2012, Nabeel Shaheen	
+ * All rights reserved.
+ * 
+ * Redistribution and use in source and binary forms, with or without modification, are permitted
+ ******************************************************************************/
 package com.odb.core.dao;
 
 import java.sql.SQLException;
@@ -93,7 +99,7 @@ public interface ODBDAO {
 	 * @throws SQLException
 	 *             the sQL exception
 	 */
-	public void addSubscribeDataSource(SubscriberDataSource subDS) throws SQLException;
+	public void addSubscribeDataSource(String subscriberID, String dsID, String graphID, String subDSID) throws SQLException;
 
 	/**
 	 * Adds the subscriber view.

@@ -1,3 +1,9 @@
+/*******************************************************************************
+ * Copyright (c) 2012, Nabeel Shaheen	
+ * All rights reserved.
+ * 
+ * Redistribution and use in source and binary forms, with or without modification, are permitted
+ ******************************************************************************/
 package com.odb.core.dao.dto;
 
 import java.sql.Timestamp;
@@ -15,7 +21,7 @@ public class DataSourceSeries {
     private Timestamp dateTime;
     
 	/** The series index. */
-	private long seriesIndex;
+	private String seriesIndex;
 	
 	/** The series index seq. */
 	private long seriesIndexSeq;
@@ -82,7 +88,7 @@ public class DataSourceSeries {
 	 *
 	 * @return the series index
 	 */
-	public long getSeriesIndex() {
+	public String getSeriesIndex() {
 		return seriesIndex;
 	}
 	
@@ -91,7 +97,7 @@ public class DataSourceSeries {
 	 *
 	 * @param seriesIndex the new series index
 	 */
-	public void setSeriesIndex(long seriesIndex) {
+	public void setSeriesIndex(String seriesIndex) {
 		this.seriesIndex = seriesIndex;
 	}
 

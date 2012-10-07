@@ -1,3 +1,9 @@
+/*******************************************************************************
+ * Copyright (c) 2012, Nabeel Shaheen	
+ * All rights reserved.
+ * 
+ * Redistribution and use in source and binary forms, with or without modification, are permitted
+ ******************************************************************************/
 package com.odb.core.service;
 
 import java.io.IOException;
@@ -38,23 +44,10 @@ public class OpenDashBoard {
 	/** The odb dao. */
 	private ODBDAO odbDAO;
 
-	/** The properties. */
-	private Properties properties;
-
 	private String pushURL;
 
 	/** The log. */
 	private static Logger log = Logger.getLogger(OpenDashBoard.class);
-
-	/**
-	 * Sets the properties.
-	 * 
-	 * @param properties
-	 *            the new properties
-	 */
-	public void setProperties(Properties properties) {
-		this.properties = properties;
-	}
 
 	/**
 	 * Sets the odb dao.
@@ -160,12 +153,12 @@ public class OpenDashBoard {
 	 * @throws SQLException
 	 *             the sQL exception
 	 */
-	public void addDataSeries(String pubID, String dsID, Map<Long, Double> userData) throws SQLException {
-		Iterator<Long> it = userData.keySet().iterator();
+	public void addDataSeries(String pubID, String dsID, Map<String, Double> userData) throws SQLException {
+		Iterator<String> it = userData.keySet().iterator();
 		while (it.hasNext()) {
 			DataSourceSeries dsSeries = new DataSourceSeries();
 			dsSeries.setDataSourceID(dsID);
-			Long seriesNum = it.next();
+			String seriesNum = it.next();
 			dsSeries.setSeriesIndex(seriesNum);
 			dsSeries.setSeriesIndexSeqVal(userData.get(seriesNum));
 			dsSeries.setDateTime(new Timestamp(System.currentTimeMillis()));
@@ -174,7 +167,7 @@ public class OpenDashBoard {
 		publish(dsID);
 	}
 
-	public PublisherInfo getPublisher(String publisherID) throws SQLException {
+	public PublisherInfo getPublisher(String publisherID)  throws SQLException {
 		return odbDAO.getPublisherByID(publisherID);
 	}
 
@@ -383,6 +376,14 @@ public class OpenDashBoard {
 		return dsAxisListAll;
 	}
 
+	public void addSubscription(String subscriberID, String dsID, String graphID, String subDSID) {
+		try {
+			odbDAO.addSubscribeDataSource(subscriberID, dsID, graphID, subDSID);
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			log.error("Failed to add subscription to subscribers account" + e);;
+		}
+	}
 	public DataSourceInfo getDataSourceInfo(String datasourceId) throws SQLException {
 		return odbDAO.getDataSourceByDataSourceID(datasourceId);
 	}

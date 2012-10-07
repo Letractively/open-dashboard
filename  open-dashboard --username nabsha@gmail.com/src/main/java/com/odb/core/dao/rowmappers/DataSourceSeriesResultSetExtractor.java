@@ -1,3 +1,9 @@
+/*******************************************************************************
+ * Copyright (c) 2012, Nabeel Shaheen	
+ * All rights reserved.
+ * 
+ * Redistribution and use in source and binary forms, with or without modification, are permitted
+ ******************************************************************************/
 package com.odb.core.dao.rowmappers;
 
 import java.sql.ResultSet;
@@ -24,7 +30,7 @@ public class DataSourceSeriesResultSetExtractor implements ResultSetExtractor<Da
 		DataSourceSeries dsSeries = new DataSourceSeries();
 		if(rs.next()){
 			dsSeries.setDataSourceID(rs.getString("DATASOURCE_ID"));
-			dsSeries.setSeriesIndex(rs.getLong("DATASOURCE_SERIES_INDEX"));
+			dsSeries.setSeriesIndex(rs.getString("DATASOURCE_SERIES_INDEX"));
 			dsSeries.setSeriesIndexSeq(rs.getLong("DATASOURCE_SERIES_INDEX_SEQ"));
 			dsSeries.setSeriesIndexSeqVal(rs.getDouble("DATASOURCE_SERIES_IDX_SEQ_VAL"));
 		}

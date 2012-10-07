@@ -1,3 +1,9 @@
+/*******************************************************************************
+ * Copyright (c) 2012, Nabeel Shaheen	
+ * All rights reserved.
+ * 
+ * Redistribution and use in source and binary forms, with or without modification, are permitted
+ ******************************************************************************/
 package com.odb.view.dashboard.client;
 
 import java.io.Serializable;
@@ -62,4 +68,6 @@ public interface DashboardService extends RemoteService {
 	public DataSourceConfiguration getDataSourceAllDetails(String dataSourceID);
 
 	public ArrayList<DataSourceConfiguration> getCurrentSubscriptions();
+
+	void addSubscription(String dsID, String graphID);
 }
