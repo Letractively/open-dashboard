@@ -130,7 +130,7 @@ public class ChartUI implements IsWidget {
 				panel.setBodyStyleName("white-bg");
 
 				try {
-					chart = ChartFactory.getChart(dsConfig,result);
+					chart = ChartFactory.getChart(dsConfig,result,ChartType.VERTICAL_BAR);
 
 					final ToggleButton toggleLive = new ToggleButton("Live");
 					toggleLive.setValue(true,false);

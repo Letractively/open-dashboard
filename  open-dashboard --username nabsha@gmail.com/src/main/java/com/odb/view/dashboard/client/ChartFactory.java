@@ -14,6 +14,8 @@ import java.util.List;
 
 import com.odb.core.service.AxisInfo;
 import com.odb.core.service.DataSourceConfiguration;
+import com.odb.view.dashboard.client.charts.ChartType;
+import com.odb.view.dashboard.client.charts.DynamicBarChart;
 import com.odb.view.dashboard.client.charts.DynamicLineChart;
 import com.odb.view.dashboard.client.charts.ODBChart;
 import com.odb.view.dashboard.client.dto.DataSourceAxisDetailInfo;
@@ -48,7 +50,7 @@ public class ChartFactory {
 	 * 
 	 * @see ODBChart
 	 */
-	public static ODBChart getChart(DataSourceConfiguration dsConfig, ArrayList<DataVO> dataList) throws ChartSettingsNotValidException {
+	public static ODBChart getChart(DataSourceConfiguration dsConfig, ArrayList<DataVO> dataList, ChartType chartType) throws ChartSettingsNotValidException {
 		// ODBChart chart = null;
 		// SubscriberDataSource subscriberDataSource = (SubscriberDataSource)
 		// viewSettings.viewConfigMap.get("subscriberDataSource_"+viewConfig.getViewLocationID());
@@ -63,7 +65,7 @@ public class ChartFactory {
 		for (DataVO d : dataList) {
 			dataListLive.add((TimeSeriesDataVO) d);
 		}
-		ODBChart chart = constructLiveChart(dsConfig, dataListLive);
+		ODBChart chart = constructLiveChart(dsConfig, dataListLive, chartType);
 		return chart;
 	}
 
@@ -78,9 +80,9 @@ public class ChartFactory {
 	 * @throws ChartSettingsNotValidException
 	 *             the chart settings not valid exception
 	 */
-	private static ODBChart constructLiveChart(DataSourceConfiguration dsConfig, ArrayList<TimeSeriesDataVO> dataList) throws ChartSettingsNotValidException {
+	private static ODBChart constructLiveChart(DataSourceConfiguration dsConfig, ArrayList<TimeSeriesDataVO> dataList, ChartType chartType) throws ChartSettingsNotValidException {
 		AxisInfo dataSourceAxisInfo = null;
-		DynamicLineChart liveChart = null;
+		ODBChart liveChart = null;
 		Integer min, max, minIndex, maxIndex;
 		try {
 			for (AxisInfo dsai : dsConfig.getXsInfo()) {
@@ -97,7 +99,17 @@ public class ChartFactory {
 		// liveChart =new LiveChart(dsConfig.getDsTimeoutInterval(), min, max,
 		// dataSourceAxisInfo.getDataSourceAxisName(),
 		// dsConfig.getSeriesCount(),dataList);
-		liveChart = new DynamicLineChart(dsConfig.getSeriesCount(), min, max, dataList);
+		switch (chartType) {
+		case HORIZONTAL_LINE:
+			liveChart = new DynamicLineChart(dsConfig.getSeriesCount(), min, max, dataList);
+			break;
+		case VERTICAL_BAR:
+			liveChart = new DynamicBarChart(dsConfig.getSeriesCount(), min, max, dataList);
+			break;
+		default:
+			liveChart = new DynamicLineChart(dsConfig.getSeriesCount(), min, max, dataList);
+			break;
+		}
 		return liveChart;
 	}
 }
